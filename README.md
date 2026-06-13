@@ -22,7 +22,7 @@ A web-based fuel ordering and delivery management system built with Django. Supp
 
 ```bash
 # 1. Clone the repo
-git clone <repo-url>
+git clone https://github.com/WinefredoSailes/ordering-web-django.git
 cd ordering-web
 
 # 2. Create and activate virtual environment
