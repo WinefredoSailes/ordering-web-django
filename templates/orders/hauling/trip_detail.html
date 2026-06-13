@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Trip {{ trip.trip_number }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <a href="{% url 'orders:hauling_trips' %}" class="text-blue-600 hover:underline mb-6 inline-block">← Back to Trips</a>
+    <div class="bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold mb-6">Trip {{ trip.trip_number }}</h1>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div><p class="text-sm text-gray-500">Tanker</p><p class="font-semibold">{{ trip.tanker.code }} ({{ trip.tanker.plate_number }}) - {{ trip.tanker.total_capacity }}L</p></div>
+            <div><p class="text-sm text-gray-500">Driver</p><p class="font-semibold">{{ trip.driver.user.username }}</p></div>
+            <div><p class="text-sm text-gray-500">Loaded</p><p class="font-semibold">{{ trip.total_loaded_liters }}L / {{ trip.tanker.total_capacity }}L</p></div>
+        </div>
+        {% if trip.dispatched_at %}<p class="text-sm text-gray-500">Dispatched: {{ trip.dispatched_at|date:"M d, Y h:i A" }}</p>{% endif %}
+        {% if trip.completed_at %}<p class="text-sm text-gray-500">Completed: {{ trip.completed_at|date:"M d, Y h:i A" }}</p>{% endif %}
+        <h2 class="text-lg font-semibold mt-6 mb-3">Orders</h2>
+        <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left">PO#</th><th class="px-4 py-2 text-left">Customer</th><th class="px-4 py-2 text-left">Product</th><th class="px-4 py-2 text-left">Qty</th><th class="px-4 py-2 text-left">Compartment</th><th class="px-4 py-2 text-left">Status</th><th class="px-4 py-2 text-left">Proof</th></tr></thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for do in trip.dispatch_orders.all %}
+                <tr>
+                    <td class="px-4 py-2">{{ do.order.po_number }}</td>
+                    <td class="px-4 py-2">{{ do.order.customer.username }}</td>
+                    <td class="px-4 py-2">{{ do.order.product.shortcut }}</td>
+                    <td class="px-4 py-2">{{ do.liters_loaded }}L</td>
+                    <td class="px-4 py-2">C{{ do.compartment.number }} ({{ do.compartment.capacity }}L)</td>
+                    <td class="px-4 py-2">{{ do.order.get_status_display }}</td>
+                    <td class="px-4 py-2">{% if do.delivery_proof %}<a href="{{ do.delivery_proof.url }}" target="_blank" class="text-blue-600 hover:underline">View</a>{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

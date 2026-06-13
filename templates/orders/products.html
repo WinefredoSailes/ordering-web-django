@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load order_extras %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Available Products</h1>
+    <div class="grid md:grid-cols-3 gap-6">
+        {% for product in products %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold">{{ product.shortcut }}</h2>
+            <p class="text-gray-600">{{ product.name }}</p>
+            {% if pricing and product.id in pricing %}
+            <p class="text-2xl font-bold text-blue-600 mt-2">₱{{ pricing|get_item:product.id }}/L</p>
+            {% else %}
+            <p class="text-sm text-gray-400 mt-2">Contact admin for pricing</p>
+            {% endif %}
+            <p class="text-sm text-gray-500 mt-1">Min order: {{ product.order_multiple }}L increments</p>
+            <a href="{% url 'orders:create_order' %}?product={{ product.id }}" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Order Now</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

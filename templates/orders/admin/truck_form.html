@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if truck %}Edit{% else %}Add{% endif %} Truck{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="mb-6">
+        <a href="{% url 'orders:truck_list' %}" class="text-blue-600 hover:underline">← Back</a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+        <h1 class="text-xl font-bold mb-4">{% if truck %}Edit{% else %}Add{% endif %} Truck</h1>
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Truck Number</label>
+                <input type="text" name="truck_number" required value="{{ truck.truck_number|default:'' }}" class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Plate Number</label>
+                <input type="text" name="plate_number" required value="{{ truck.plate_number|default:'' }}" class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Total Capacity (Liters)</label>
+                <input type="number" name="total_capacity_liters" required value="{{ truck.total_capacity_liters|default:'10000' }}" class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Compartments Count</label>
+                <input type="number" name="compartments_count" required value="{{ truck.compartments_count|default:'6' }}" class="w-full border rounded-lg p-2">
+            </div>
+            {% if truck %}
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_active" id="is_active" {% if truck.is_active %}checked{% endif %}>
+                <label for="is_active">Active</label>
+            </div>
+            {% endif %}
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg">
+                Save
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

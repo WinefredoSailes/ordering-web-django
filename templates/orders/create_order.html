@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Place Order{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Place Order</h1>
+    <form id="orderForm" method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+            <select name="product" id="productSelect" required class="w-full border rounded-lg p-2">
+                <option value="">Select product...</option>
+                {% for p in products %}
+                <option value="{{ p.id }}" data-multiple="{{ p.order_multiple }}" {% if preselected == p.id|stringformat:"s" %}selected{% endif %}>{{ p.shortcut }} - {{ p.name }}</option>
+                {% endfor %}
+            </select>
+            <p id="priceDisplay" class="text-sm text-gray-500 mt-1"></p>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Quantity (Liters)</label>
+            <input type="number" name="quantity_liters" id="quantityInput" min="500" step="500" required class="w-full border rounded-lg p-2">
+            <p id="multipleHint" class="text-sm text-gray-500 mt-1">Must be a multiple of 500L</p>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
+            <textarea name="delivery_address" rows="3" required class="w-full border rounded-lg p-2">{{ request.user.address }}</textarea>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+            <textarea name="notes" rows="2" class="w-full border rounded-lg p-2"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">Place Order</button>
+    </form>
+</div>
+<script>
+    function updateProduct() {
+        const sel = document.getElementById('productSelect');
+        const opt = sel.options[sel.selectedIndex];
+        const multiple = opt.dataset.multiple || 500;
+        const qty = document.getElementById('quantityInput');
+        qty.step = multiple;
+        qty.min = multiple;
+        document.getElementById('multipleHint').textContent = 'Must be a multiple of ' + multiple + 'L';
+    }
+    document.getElementById('productSelect').addEventListener('change', updateProduct);
+    {% if preselected %}document.addEventListener('DOMContentLoaded', updateProduct);{% endif %}
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch(this.action, { method: 'POST', body: formData, headers: {'X-Requested-With': 'XMLHttpRequest'} })
+            .then(r => r.json())
+            .then(d => { if(d.success) window.location.href = '/order/' + d.order_id + '/'; else alert(d.error); })
+            .catch(() => alert('Error creating order'));
+    });
+</script>
+{% endblock %}

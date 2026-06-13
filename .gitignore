@@ -1,0 +1,25 @@
+# Virtual Environment
+venv/
+.env
+
+# Django
+*.pyc
+__pycache__/
+*.pyo
+db.sqlite3
+staticfiles/
+media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Migrations - uncomment if you want to exclude
+# **/migrations/

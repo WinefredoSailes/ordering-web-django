@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Users</h1>
+        <a href="{% url 'accounts:user_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 whitespace-nowrap">Add User</a>
+    </div>
+
+    <form method="get" class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap items-end gap-4">
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Role</label>
+            <select name="role" class="border rounded-lg p-2 min-w-[140px]">
+                <option value="">All Roles</option>
+                <option value="customer" {% if filters.role == 'customer' %}selected{% endif %}>Customer</option>
+                <option value="cashier" {% if filters.role == 'cashier' %}selected{% endif %}>Cashier</option>
+                <option value="hauling" {% if filters.role == 'hauling' %}selected{% endif %}>Hauling</option>
+                <option value="driver" {% if filters.role == 'driver' %}selected{% endif %}>Driver</option>
+                <option value="superadmin" {% if filters.role == 'superadmin' %}selected{% endif %}>Superadmin</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Group</label>
+            <select name="group" class="border rounded-lg p-2 min-w-[160px]">
+                <option value="">All Groups</option>
+                {% for g in groups %}
+                <option value="{{ g.id }}" {% if filters.group == g.id|stringformat:'s' %}selected{% endif %}>{{ g.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}" class="border rounded-lg p-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}" class="border rounded-lg p-2 text-sm">
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">Filter</button>
+        {% if filters.role or filters.group or filters.date_from or filters.date_to %}
+        <a href="{% url 'accounts:user_list' %}" class="text-gray-600 hover:text-gray-800 text-sm py-2">Clear</a>
+        {% endif %}
+    </form>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Username</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Business</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Group</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for u in users %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{{ u.username }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u.business_name|default:'-' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u.get_role_display }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u.customer_group.name|default:'-' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u.phone|default:'-' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ u.date_joined|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <a href="{% url 'accounts:user_edit' u.pk %}" class="text-yellow-600 hover:text-yellow-900 mr-3">Edit</a>
+                        {% if u.role == 'customer' %}<a href="{% url 'orders:admin_customer_documents' u.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">Docs</a>{% endif %}
+                        <a href="{% url 'accounts:user_delete' u.pk %}" class="text-red-600 hover:text-red-900" onclick="return confirm('Delete this user? This action cannot be undone.')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

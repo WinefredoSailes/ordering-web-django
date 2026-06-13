@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}{% if driver %}Edit{% else %}Create{% endif %} Driver{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">{% if driver %}Edit{% else %}Create{% endif %} Driver</h1>
+    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+        {% csrf_token %}
+        {% if not driver %}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
+            <select name="user" required class="w-full border rounded-lg p-2">
+                <option value="">Select user...</option>
+                {% for u in users %}
+                <option value="{{ u.id }}">{{ u.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input type="text" name="phone" value="{{ driver.phone|default:'' }}" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">License Number</label>
+            <input type="text" name="license_number" value="{{ driver.license_number|default:'' }}" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">License Expiry</label>
+            <input type="date" name="license_expiry" value="{{ driver.license_expiry|date:'Y-m-d'|default:'' }}" class="w-full border rounded-lg p-2">
+        </div>
+        {% if driver %}
+        <div>
+            <label class="flex items-center">
+                <input type="checkbox" name="is_available" {% if driver.is_available %}checked{% endif %} class="mr-2">
+                <span class="text-sm font-medium text-gray-700">Available</span>
+            </label>
+        </div>
+        {% endif %}
+        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">{% if driver %}Update{% else %}Create{% endif %} Driver</button>
+    </form>
+</div>
+{% endblock %}

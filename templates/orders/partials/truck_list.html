@@ -1,0 +1,35 @@
+{% if trucks %}
+{% for truck in trucks %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-start">
+        <div>
+            <h2 class="text-lg font-bold">{{ truck.truck_number }}</h2>
+            <p class="text-sm text-gray-500">{{ truck.plate_number }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'orders:truck_detail' truck.pk %}" class="text-blue-600 hover:underline text-sm">View</a>
+            <a href="{% url 'orders:truck_edit' truck.pk %}" class="text-yellow-600 hover:underline text-sm">Edit</a>
+            <a href="{% url 'orders:truck_delete' truck.pk %}" class="text-red-600 hover:underline text-sm"
+               onclick="return confirm('Delete this truck?')">Delete</a>
+        </div>
+    </div>
+    <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+        <p>Capacity: <strong>{{ truck.total_capacity_liters }}L</strong></p>
+        <p>Compartments: <strong>{{ truck.compartments_count }}</strong></p>
+        <p>Status: {% if truck.is_active %}<span class="text-green-600">Active</span>{% else %}<span class="text-red-600">Inactive</span>{% endif %}</p>
+    </div>
+    {% if truck.compartments.exists %}
+    <div class="mt-3">
+        <p class="text-sm font-medium text-gray-500 mb-1">Compartments:</p>
+        <div class="flex flex-wrap gap-2">
+            {% for comp in truck.compartments.all %}
+            <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">C{{ comp.compartment_number }}: {{ comp.capacity_liters }}L</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+{% else %}
+<div class="col-span-2 bg-white rounded-lg shadow p-6 text-center text-gray-500">No trucks found.</div>
+{% endif %}

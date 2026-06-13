@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Compartment{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="mb-6">
+        <a href="{% url 'orders:truck_detail' truck.pk %}" class="text-blue-600 hover:underline">← Back</a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+        <h1 class="text-xl font-bold mb-4">Add Compartment to {{ truck.truck_number }}</h1>
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Compartment Number</label>
+                <input type="number" name="compartment_number" required class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Capacity (Liters)</label>
+                <input type="number" name="capacity_liters" required value="2000" class="w-full border rounded-lg p-2">
+            </div>
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg">
+                Add Compartment
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

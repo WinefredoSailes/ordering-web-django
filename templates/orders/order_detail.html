@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Order {{ order.po_number }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-800">Order {{ order.po_number }}</h1>
+        <a href="{% if request.user.role == 'customer' %}{% url 'orders:my_orders' %}{% else %}/admin/orders/{% endif %}" class="text-blue-600 hover:underline">← Back</a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        {% if latest_payment and latest_payment.status == 'rejected' %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p class="font-semibold text-red-800">Payment Rejected</p>
+            <p class="text-red-700">{{ latest_payment.rejection_reason }}</p>
+            <p class="text-sm text-red-600 mt-2">Please upload a clearer payment proof below.</p>
+        </div>
+        {% endif %}
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <p class="text-sm text-gray-500">Product</p>
+                <p class="text-lg font-semibold">{{ order.product.shortcut }} - {{ order.product.name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Quantity</p>
+                <p class="text-lg font-semibold">{{ order.quantity_liters }}L <span class="text-sm text-gray-500">({{ order.short_notation }})</span></p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">PO Number</p>
+                <p class="text-lg font-semibold font-mono">{{ order.po_number }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Status</p>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full
+                    {% if order.status == 'draft' %}bg-yellow-100 text-yellow-800
+                    {% elif order.status == 'ready_for_dispatch' %}bg-green-100 text-green-800
+                    {% elif order.status == 'dispatched' %}bg-purple-100 text-purple-800
+                    {% elif order.status == 'in_transit' %}bg-indigo-100 text-indigo-800
+                    {% elif order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+            {% if order.price_per_liter %}
+            <div>
+                <p class="text-sm text-gray-500">Price/L</p>
+                <p class="text-lg font-semibold">₱{{ order.price_per_liter }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Total</p>
+                <p class="text-lg font-semibold">₱{{ order.total_amount }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-6">
+            <p class="text-sm text-gray-500">Delivery Address</p>
+            <p class="text-gray-800">{{ order.delivery_address }}</p>
+        </div>
+
+        {% if payments %}
+        <div class="mb-6">
+            <p class="text-sm text-gray-500 mb-2">Payment History</p>
+            {% for payment in payments %}
+            <div class="border rounded-lg p-3 mb-2 {% if payment.status == 'approved' %}bg-green-50 border-green-200{% elif payment.status == 'rejected' %}bg-red-50 border-red-200{% else %}bg-blue-50 border-blue-200{% endif %}">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium">{{ payment.uploaded_at|date:"M d, Y h:i A" }}</p>
+                        <span class="px-2 py-0.5 text-xs rounded-full
+                            {% if payment.status == 'uploaded' %}bg-blue-100 text-blue-800
+                            {% elif payment.status == 'approved' %}bg-green-100 text-green-800
+                            {% elif payment.status == 'rejected' %}bg-red-100 text-red-800{% endif %}">
+                            {{ payment.get_status_display }}
+                        </span>
+                        {% if payment.rejection_reason %}
+                        <p class="text-xs text-red-600 mt-1">{{ payment.rejection_reason }}</p>
+                        {% endif %}
+                    </div>
+                    <a href="{{ payment.file.url }}" target="_blank" class="text-blue-600 hover:underline text-sm">View</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if dispatch_orders %}
+        <div class="border-t pt-6 mt-6">
+            <h2 class="text-lg font-semibold mb-4">Dispatch Info</h2>
+            {% for do in dispatch_orders %}
+            <div class="bg-gray-50 rounded-lg p-3 mb-2">
+                <p>Trip: <strong>{{ do.trip.trip_number }}</strong></p>
+                <p>Tanker: {{ do.trip.tanker.code }} ({{ do.trip.tanker.plate_number }})</p>
+                <p>Driver: {{ do.trip.driver.user.username }}</p>
+                <p>Compartment: C{{ do.compartment.number }} ({{ do.compartment.capacity }}L)</p>
+                {% if do.delivery_proof %}
+                <p class="mt-2"><a href="{{ do.delivery_proof.url }}" target="_blank" class="text-blue-600 hover:underline">View Delivery Proof</a></p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if request.user.role == 'customer' and order.status == 'draft' or request.user.role == 'customer' and latest_payment.status == 'rejected' %}
+        <div class="border-t pt-6 mt-6">
+            <form method="post" enctype="multipart/form-data" action="{% url 'orders:upload_payment' order.pk %}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Payment Proof</label>
+                    <input type="file" name="payment_file" accept="image/*" required class="w-full border rounded-lg p-2">
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Upload Payment Proof</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

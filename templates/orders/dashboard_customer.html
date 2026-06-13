@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">My Dashboard</h1>
+    <div class="grid md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
+            <p class="text-sm text-gray-500">Awaiting Payment Upload</p>
+            <p class="text-2xl font-bold">{{ stats.draft }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+            <p class="text-sm text-gray-500">Ready to Go</p>
+            <p class="text-2xl font-bold">{{ stats.ready }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+            <p class="text-sm text-gray-500">Dispatched</p>
+            <p class="text-2xl font-bold">{{ stats.dispatched }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-indigo-500">
+            <p class="text-sm text-gray-500">In Transit</p>
+            <p class="text-2xl font-bold">{{ stats.in_transit }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-600">
+            <p class="text-sm text-gray-500">Delivered</p>
+            <p class="text-2xl font-bold">{{ stats.delivered }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+            <p class="text-sm text-gray-500">Pending Payments</p>
+            <p class="text-2xl font-bold">{{ stats.pending_payments }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
+            <p class="text-sm text-gray-500">Rejected Payments</p>
+            <p class="text-2xl font-bold">{{ stats.rejected_payments }}</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-4">Recent Orders</h2>
+        {% if orders %}
+        <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">PO#</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Product</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Qty</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Date</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for order in orders %}
+                <tr>
+                    <td class="px-4 py-2 text-sm">{{ order.po_number }}</td>
+                    <td class="px-4 py-2 text-sm">{{ order.product.shortcut }}</td>
+                    <td class="px-4 py-2 text-sm">{{ order.quantity_liters }}L</td>
+                    <td class="px-4 py-2"><span class="px-2 py-1 text-xs rounded-full {% if order.status == 'draft' %}bg-yellow-100 text-yellow-800{% elif order.status == 'ready_for_dispatch' %}bg-green-100 text-green-800{% elif order.status == 'dispatched' %}bg-purple-100 text-purple-800{% elif order.status == 'in_transit' %}bg-indigo-100 text-indigo-800{% elif order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}">{{ order.get_status_display }}</span></td>
+                    <td class="px-4 py-2 text-sm text-gray-500">{{ order.created_at|date:"M d, Y" }}</td>
+                    <td class="px-4 py-2"><a href="{% url 'orders:order_detail' order.pk %}" class="text-blue-600 hover:underline text-sm">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}<p class="text-gray-500">No orders yet. <a href="{% url 'orders:products' %}" class="text-blue-600 hover:underline">Place your first order</a></p>{% endif %}
+    </div>
+</div>
+{% endblock %}

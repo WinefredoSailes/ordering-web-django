@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Sales Report{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Sales Report</h1>
+
+    <form method="get" class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap items-end gap-4">
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}" class="border rounded-lg p-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}" class="border rounded-lg p-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Search</label>
+            <input type="text" name="search" value="{{ filters.search }}" placeholder="PO#, customer..." class="border rounded-lg p-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Product</label>
+            <select name="product" class="border rounded-lg p-2 text-sm">
+                <option value="">All</option>
+                {% for p in products %}
+                <option value="{{ p.id }}" {% if filters.product == p.id|stringformat:"s" %}selected{% endif %}>{{ p.shortcut }} - {{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+            <select name="status" class="border rounded-lg p-2 text-sm">
+                <option value="">All</option>
+                <option value="delivered" {% if filters.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                <option value="dispatched" {% if filters.status == 'dispatched' %}selected{% endif %}>Dispatched</option>
+                <option value="in_transit" {% if filters.status == 'in_transit' %}selected{% endif %}>In Transit</option>
+                <option value="ready_for_dispatch" {% if filters.status == 'ready_for_dispatch' %}selected{% endif %}>Approved</option>
+                <option value="draft" {% if filters.status == 'draft' %}selected{% endif %}>Awaiting Payment Upload</option>
+                <option value="cancelled" {% if filters.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">Filter</button>
+        {% if filters.date_from or filters.date_to or filters.search or filters.product or filters.status %}<a href="{% url 'orders:sales_report' %}" class="text-gray-600 hover:text-gray-800 text-sm py-2">Clear</a>{% endif %}
+    </form>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+            <p class="text-xs text-gray-500">Revenue</p>
+            <p class="text-xl font-bold text-green-700">₱{{ total_revenue|floatformat:2|intcomma }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
+            <p class="text-xs text-gray-500">Pending</p>
+            <p class="text-xl font-bold text-yellow-700">₱{{ pending_revenue|floatformat:2|intcomma }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+            <p class="text-xs text-gray-500">Total Orders</p>
+            <p class="text-xl font-bold text-blue-700">{{ total_orders }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-indigo-500">
+            <p class="text-xs text-gray-500">Delivered</p>
+            <p class="text-xl font-bold text-indigo-700">{{ delivered_count }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+            <p class="text-xs text-gray-500">Avg Order</p>
+            <p class="text-xl font-bold text-purple-700">₱{{ avg_order|floatformat:2|intcomma }}</p>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-4">
+            <h2 class="text-lg font-semibold mb-3">Sales by Product</h2>
+            {% if sales_by_product %}
+            <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Orders</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Total</th></tr></thead>
+                <tbody class="divide-y">
+                    {% for s in sales_by_product %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-2 font-medium">{{ s.product__shortcut }}</td>
+                        <td class="px-3 py-2 text-right">{{ s.count }}</td>
+                        <td class="px-3 py-2 text-right font-medium">₱{{ s.total|floatformat:2|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}<p class="text-gray-500 text-sm">No completed sales yet.</p>{% endif %}
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <h2 class="text-lg font-semibold mb-3">Top Customers</h2>
+            {% if sales_by_customer %}
+            <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Customer</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Orders</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Total</th></tr></thead>
+                <tbody class="divide-y">
+                    {% for s in sales_by_customer %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-2">{{ s.customer__business_name|default:s.customer__username }}</td>
+                        <td class="px-3 py-2 text-right">{{ s.count }}</td>
+                        <td class="px-3 py-2 text-right font-medium">₱{{ s.total|floatformat:2|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}<p class="text-gray-500 text-sm">No completed sales yet.</p>{% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-lg font-semibold mb-3">Recent Approved Payments</h2>
+        {% if recent_payments %}
+        <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">AR#</th><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">PO#</th><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Customer</th><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Amount</th><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Approved</th></tr></thead>
+            <tbody class="divide-y">
+                {% for p in recent_payments %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-3 py-2 font-mono text-xs">{{ p.acknowledgement_receipt|default:'-' }}</td>
+                    <td class="px-3 py-2 font-mono text-xs">{{ p.order.po_number }}</td>
+                    <td class="px-3 py-2">{{ p.order.customer.username }}</td>
+                    <td class="px-3 py-2">{{ p.order.product.shortcut }}</td>
+                    <td class="px-3 py-2 text-right font-medium">₱{{ p.order.total_amount|floatformat:2|intcomma }}</td>
+                    <td class="px-3 py-2 text-gray-500">{{ p.processed_at|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}<p class="text-gray-500 text-sm">No approved payments yet.</p>{% endif %}
+    </div>
+</div>
+{% endblock %}

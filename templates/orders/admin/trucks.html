@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Trucks{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Trucks Management</h1>
+        <button onclick="document.getElementById('truckModal').showModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg">
+            + Add Truck
+        </button>
+    </div>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="trucksGrid">
+        {% for truck in trucks %}
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <h3 class="text-lg font-semibold">{{ truck.truck_number }}</h3>
+                    <p class="text-sm text-gray-500">{{ truck.plate_number }}</p>
+                </div>
+                <span class="px-2 py-1 text-xs rounded-full {% if truck.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {% if truck.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+            <div class="text-sm text-gray-600 mb-3">
+                <p>Capacity: {{ truck.total_capacity_liters }}L</p>
+                <p>Compartments: {{ truck.compartments.count }}</p>
+            </div>
+            <div class="flex gap-2">
+                <a href="{% url 'orders:truck_detail' truck.pk %}" class="text-blue-600 hover:underline text-sm">Manage</a>
+                <a href="{% url 'orders:truck_edit' truck.pk %}" class="text-gray-600 hover:underline text-sm">Edit</a>
+                <a href="{% url 'orders:truck_delete' truck.pk %}" class="text-red-600 hover:underline text-sm" onclick="return confirm('Delete this truck?')">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<dialog id="truckModal" class="modal p-6 rounded-lg shadow-2xl w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4">Add New Truck</h2>
+    <form method="post" action="{% url 'orders:truck_create' %}">
+        {% csrf_token %}
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Truck Number</label>
+                <input type="text" name="truck_number" required class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Plate Number</label>
+                <input type="text" name="plate_number" required class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Total Capacity (Liters)</label>
+                <input type="number" name="total_capacity_liters" required value="10000" class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Compartments Count</label>
+                <input type="number" name="compartments_count" required value="6" class="w-full border rounded-lg p-2">
+            </div>
+        </div>
+        <div class="flex gap-3 mt-4">
+            <button type="button" onclick="document.getElementById('truckModal').close()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button>
+            <button type="submit" class="flex-1 bg-amber-500 text-white py-2 rounded-lg">Save</button>
+        </div>
+    </form>
+</dialog>
+{% endblock %}
