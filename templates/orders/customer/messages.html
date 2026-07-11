@@ -5,7 +5,7 @@
     <h1 class="text-2xl font-bold text-gray-800 mb-4">💬 Messages</h1>
     <div class="bg-white rounded-lg shadow flex flex-col h-[calc(100vh-12rem)]">
         <!-- Messages area -->
-        <div id="chatMessagesWrapper" hx-get="{% url 'orders:customer_messages' %}" hx-trigger="every 30s" hx-target="#chatMessagesWrapper" hx-swap="outerHTML" hx-select="#chatMessagesWrapper">
+        <div id="chatMessagesWrapper" class="flex flex-col flex-1 min-h-0" hx-get="{% url 'orders:customer_messages' %}" hx-trigger="every 30s" hx-target="#chatMessagesWrapper" hx-swap="outerHTML" hx-select="#chatMessagesWrapper">
             <div id="chatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
                 {% for msg in messages %}
                 <div class="flex {% if msg.sender == request.user %}justify-end{% else %}justify-start{% endif %}">
@@ -26,6 +26,16 @@
                 {% endfor %}
             </div>
         </div>
+        <script>
+            (function() {
+                var el = document.getElementById('chatMessages');
+                if (el) el.scrollTop = el.scrollHeight;
+            })();
+            document.addEventListener('htmx:afterSwap', function() {
+                var el = document.getElementById('chatMessages');
+                if (el) el.scrollTop = el.scrollHeight;
+            });
+        </script>
 
         <!-- Input -->
         <form method="post" enctype="multipart/form-data" class="border-t p-4 flex flex-col gap-2">

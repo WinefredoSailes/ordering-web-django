@@ -71,7 +71,7 @@
         </div>
 
         <!-- Messages (HTMX polls every 30s, only refreshes this container) -->
-        <div id="chatMessagesWrapper"
+        <div id="chatMessagesWrapper" class="flex flex-col flex-1 min-h-0"
              hx-get="{{ request.path }}?with={{ active_conversation.id }}"
              hx-trigger="every 30s"
              hx-target="#chatMessagesWrapper"
@@ -90,6 +90,16 @@
                 {% endfor %}
             </div>
         </div>
+        <script>
+            (function() {
+                var el = document.getElementById('chatMessages');
+                if (el) el.scrollTop = el.scrollHeight;
+            })();
+            document.addEventListener('htmx:afterSwap', function() {
+                var el = document.getElementById('chatMessages');
+                if (el) el.scrollTop = el.scrollHeight;
+            });
+        </script>
 
         <!-- Quick actions + input -->
         <div class="bg-white border-t px-4 py-3 space-y-2">
