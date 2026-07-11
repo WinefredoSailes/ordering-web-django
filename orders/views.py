@@ -1057,6 +1057,7 @@ def hauling_ops_chat(request):
         'conversations': conversations,
         'active_conversation': active_conversation,
         'messages': messages_qs,
+        'hide_messages': True,
     })
 
 
@@ -1108,7 +1109,7 @@ def customer_messages(request):
     conv.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
     msgs = conv.messages.select_related('sender').all()
     return render(request, 'orders/customer/messages.html', {
-        'conversation': conv, 'messages': msgs,
+        'conversation': conv, 'messages': msgs, 'hide_messages': True,
     })
 
 
