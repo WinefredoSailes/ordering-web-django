@@ -1,6 +1,6 @@
 {% if orders %}
 {% for order in orders %}
-<tr class="hover:bg-surface">
+<tr class="hover:">
     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-bright">{{ order.po_number }}</td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-muted">{{ order.product.shortcut }} - {{ order.product.name }}</td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-muted">{{ order.quantity_liters }} L</td>

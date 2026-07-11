@@ -6,9 +6,9 @@
         <div class="card-body">
         <div class="flex items-center gap-3 mb-4">
             <a href="{% url 'orders:hauling_ops_chat' %}?with={{ conv.id }}" class="text-muted hover:text-bright">&larr; Back</a>
-            <h1 class="text-xl font-bold text-white">💬 Reply to Customer</h1>
+            <h1 class="text-xl font-bold text-slate-800">💬 Reply to Customer</h1>
         </div>
-        <p class="text-sm text-muted mb-4">Customer: <strong class="text-white">{{ conv.customer.business_name|default:conv.customer.username }}</strong></p>
+        <p class="text-sm text-muted mb-4">Customer: <strong class="text-slate-800">{{ conv.customer.business_name|default:conv.customer.username }}</strong></p>
         <form method="post">
             {% csrf_token %}
             <div>

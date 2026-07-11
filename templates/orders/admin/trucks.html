@@ -5,7 +5,7 @@
 {% block content %}
 <div class="max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-white">Trucks Management</h1>
+        <h1 class="text-2xl font-bold text-slate-800">Trucks Management</h1>
         <button onclick="document.getElementById('truckModal').showModal()" class="btn-primary">
             + Add Truck
         </button>
@@ -30,7 +30,7 @@
             <div class="flex gap-2">
                 <a href="{% url 'orders:truck_detail' truck.pk %}" class="link text-sm">Manage</a>
                 <a href="{% url 'orders:truck_edit' truck.pk %}" class="link text-sm">Edit</a>
-                <a href="{% url 'orders:truck_delete' truck.pk %}" class="text-red-400 hover:text-red-300 text-sm" onclick="return confirm('Delete this truck?')">Delete</a>
+                <a href="{% url 'orders:truck_delete' truck.pk %}" class="text-red-500 hover:text-red-300 text-sm" onclick="return confirm('Delete this truck?')">Delete</a>
             </div>
         </div>
         {% endfor %}
@@ -38,7 +38,7 @@
 </div>
 
 <dialog id="truckModal" class="card max-w-md">
-    <h2 class="text-xl font-bold text-white mb-4">Add New Truck</h2>
+    <h2 class="text-xl font-bold text-slate-800 mb-4">Add New Truck</h2>
     <form method="post" action="{% url 'orders:truck_create' %}">
         {% csrf_token %}
         <div class="space-y-4">

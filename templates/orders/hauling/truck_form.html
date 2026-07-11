@@ -2,7 +2,7 @@
 {% block title %}{% if truck %}Edit{% else %}Add{% endif %} Truck{% endblock %}
 {% block content %}
 <div class="max-w-lg mx-auto">
-    <h1 class="text-2xl font-bold text-white mb-6">{% if truck %}Edit{% else %}Add{% endif %} Truck</h1>
+    <h1 class="text-2xl font-bold text-slate-800 mb-6">{% if truck %}Edit{% else %}Add{% endif %} Truck</h1>
     <form method="post" class="card p-6 space-y-4">
         {% csrf_token %}
         <div>

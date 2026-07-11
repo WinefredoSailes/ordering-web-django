@@ -3,9 +3,9 @@
 {% block content %}
 <div class="flex h-[calc(100vh-3.5rem)] -mx-4 sm:-mx-6 lg:-mx-8">
     <!-- Conversations sidebar -->
-    <div class="w-72 bg-glass border-r border-subtle flex-shrink-0 hidden sm:flex flex-col">
-        <div class="p-3 border-b border-subtle">
-            <h2 class="font-semibold text-white">Conversations</h2>
+    <div class="w-72 bg-white border-r border-slate-200 flex-shrink-0 hidden sm:flex flex-col">
+        <div class="p-3 border-b border-slate-200">
+            <h2 class="font-semibold text-slate-800">Conversations</h2>
             <div class="flex gap-1 mt-2">
                 <a href="?sort=unread" class="tab {% if request.GET.sort == 'unread' %}tab-active{% else %}tab-inactive{% endif %}">Unread</a>
                 <a href="?sort=recent" class="tab {% if request.GET.sort == 'recent' or not request.GET.sort %}tab-active{% else %}tab-inactive{% endif %}">Recent</a>
@@ -15,9 +15,9 @@
         <div class="flex-1 overflow-y-auto">
             {% for conv in conversations %}
             <a href="?with={{ conv.id }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
-               class="block px-4 py-3 border-b border-subtle hover:bg-white/5 {% if active_conversation.id == conv.id %}bg-orange-900/20 border-l-4 border-l-orange-500{% endif %}">
+               class="block px-4 py-3 border-b border-slate-200 hover:bg-slate-50 {% if active_conversation.id == conv.id %}bg-blue-50 border-l-4 border-l-blue-500{% endif %}">
                 <div class="flex justify-between items-start">
-                    <span class="font-medium text-sm text-white">{{ conv.customer.business_name|default:conv.customer.username }}</span>
+                    <span class="font-medium text-sm text-slate-800">{{ conv.customer.business_name|default:conv.customer.username }}</span>
                     {% if conv.unread_count > 0 and active_conversation.id != conv.id %}
                     <span class="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ conv.unread_count }}</span>
                     {% endif %}
@@ -38,14 +38,14 @@
     <!-- Mobile conversation list (shown when no conversation selected) -->
     {% if not active_conversation %}
     <div class="flex-1 flex flex-col sm:hidden">
-        <div class="p-3 border-b border-subtle bg-glass">
-            <h2 class="font-semibold text-white">Conversations</h2>
+        <div class="p-3 border-b border-slate-200 bg-white">
+            <h2 class="font-semibold text-slate-800">Conversations</h2>
         </div>
         <div class="flex-1 overflow-y-auto">
             {% for conv in conversations %}
-            <a href="?with={{ conv.id }}" class="block px-4 py-3 border-b border-subtle hover:bg-white/5">
+            <a href="?with={{ conv.id }}" class="block px-4 py-3 border-b border-slate-200 hover:bg-slate-50">
                 <div class="flex justify-between items-start">
-                    <span class="font-medium text-sm text-white">{{ conv.customer.business_name|default:conv.customer.username }}</span>
+                    <span class="font-medium text-sm text-slate-800">{{ conv.customer.business_name|default:conv.customer.username }}</span>
                     {% if conv.unread_count > 0 %}<span class="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ conv.unread_count }}</span>{% endif %}
                 </div>
                 {% if conv.last_message %}<p class="text-xs text-muted truncate mt-0.5">{{ conv.last_message.created_at|timesince }} ago</p>{% endif %}
@@ -59,13 +59,13 @@
     <div class="flex-1 flex flex-col {% if not active_conversation %}hidden sm:flex{% endif %}">
         {% if active_conversation %}
         <!-- Chat header -->
-        <div class="bg-glass border-b border-subtle px-4 py-3 flex items-center gap-3">
+        <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3">
             <a href="{{ request.path }}" class="sm:hidden text-muted hover:text-bright">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </a>
-            <div class="w-8 h-8 rounded-full bg-orange-600 text-white flex items-center justify-center text-sm font-bold">{{ active_conversation.customer.username|first|upper }}</div>
+            <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">{{ active_conversation.customer.username|first|upper }}</div>
             <div>
-                <p class="font-medium text-sm text-white">{{ active_conversation.customer.business_name|default:active_conversation.customer.username }}</p>
+                <p class="font-medium text-sm text-slate-800">{{ active_conversation.customer.business_name|default:active_conversation.customer.username }}</p>
                 <p class="text-xs text-muted">{{ active_conversation.customer.phone }}</p>
             </div>
         </div>
@@ -77,12 +77,12 @@
              hx-target="#chatMessagesWrapper"
              hx-swap="outerHTML"
              hx-select="#chatMessagesWrapper">
-            <div id="chatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-deep">
+            <div id="chatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-slate-50">
                 {% for msg in messages %}
                 <div class="flex {% if msg.sender == request.user %}justify-end{% else %}justify-start{% endif %}">
-                    <div class="max-w-[80%] {% if msg.sender == request.user %}bg-orange-600 text-white rounded-t-xl rounded-bl-xl{% elif msg.is_system %}bg-emerald-900/40 text-emerald-300 rounded-t-xl rounded-br-xl{% else %}bg-slate-800/60 text-slate-200 rounded-t-xl rounded-br-xl{% endif %} px-3 py-2">
+                    <div class="max-w-[80%] {% if msg.sender == request.user %}bg-blue-600 text-white rounded-t-xl rounded-bl-xl{% elif msg.is_system %}bg-emerald-50 text-emerald-700 rounded-t-xl rounded-br-xl{% else %}bg-white text-slate-800 border border-slate-200 rounded-t-xl rounded-br-xl{% endif %} px-3 py-2">
                         <p class="text-sm whitespace-pre-wrap">{{ msg.content }}</p>
-                        <p class="text-xs mt-1 {% if msg.sender == request.user %}text-orange-200{% else %}text-muted{% endif %}">{{ msg.created_at|date:"g:i A" }}</p>
+                        <p class="text-xs mt-1 {% if msg.sender == request.user %}text-blue-300{% else %}text-muted{% endif %}">{{ msg.created_at|date:"g:i A" }}</p>
                     </div>
                 </div>
                 {% empty %}
@@ -102,7 +102,7 @@
         </script>
 
         <!-- Quick actions + input -->
-        <div class="bg-glass border-t border-subtle px-4 py-3 space-y-2">
+        <div class="bg-white border-t border-slate-200 px-4 py-3 space-y-2">
             <div class="flex flex-wrap gap-1.5">
                 <a href="{% url 'orders:hauling_preview_order' active_conversation.id %}?with={{ active_conversation.id }}" class="tab tab-inactive">📦 Order</a>
                 <a href="{% url 'orders:hauling_preview_modify' active_conversation.id %}?with={{ active_conversation.id }}" class="tab tab-inactive">📋 Modify</a>

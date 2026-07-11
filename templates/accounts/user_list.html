@@ -68,7 +68,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <a href="{% url 'accounts:user_edit' u.pk %}" class="link mr-3">Edit</a>
                         {% if u.role == 'customer' %}<a href="{% url 'orders:admin_customer_documents' u.pk %}" class="link mr-3">Docs</a>{% endif %}
-                        <a href="{% url 'accounts:user_delete' u.pk %}" class="text-red-400 hover:text-red-300 mr-3" onclick="return confirm('Delete this user? This action cannot be undone.')">Delete</a>
+                        <a href="{% url 'accounts:user_delete' u.pk %}" class="text-red-500 hover:text-red-300 mr-3" onclick="return confirm('Delete this user? This action cannot be undone.')">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}

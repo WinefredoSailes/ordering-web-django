@@ -2,7 +2,7 @@
 {% block title %}{% if group %}Edit{% else %}Create{% endif %} Group{% endblock %}
 {% block content %}
 <div class="max-w-lg mx-auto">
-    <h1 class="text-2xl font-bold text-white mb-6">{% if group %}Edit{% else %}Create{% endif %} Group</h1>
+    <h1 class="text-2xl font-bold text-slate-800 mb-6">{% if group %}Edit{% else %}Create{% endif %} Group</h1>
     <form method="post" class="card space-y-4 p-6">
         {% csrf_token %}
         <div>

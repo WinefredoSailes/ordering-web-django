@@ -4,16 +4,16 @@
 <div class="max-w-4xl mx-auto">
     <a href="{% url 'orders:hauling_trips' %}" class="link mb-6 inline-block">← Back to Trips</a>
     <div class="card">
-        <div class="card-header"><h1 class="text-2xl font-bold text-white">Trip {{ trip.trip_number }}</h1></div>
+        <div class="card-header"><h1 class="text-2xl font-bold text-slate-800">Trip {{ trip.trip_number }}</h1></div>
         <div class="card-body">
         <div class="grid md:grid-cols-3 gap-4 mb-6">
-            <div><p class="text-sm text-muted">Tanker</p><p class="font-semibold text-white">{{ trip.tanker.code }} ({{ trip.tanker.plate_number }}) - {{ trip.tanker.total_capacity }}L</p></div>
-            <div><p class="text-sm text-muted">Driver</p><p class="font-semibold text-white">{{ trip.driver.user.username }}</p></div>
-            <div><p class="text-sm text-muted">Loaded</p><p class="font-semibold text-white">{{ trip.total_loaded_liters }}L / {{ trip.tanker.total_capacity }}L</p></div>
+            <div><p class="text-sm text-muted">Tanker</p><p class="font-semibold text-slate-800">{{ trip.tanker.code }} ({{ trip.tanker.plate_number }}) - {{ trip.tanker.total_capacity }}L</p></div>
+            <div><p class="text-sm text-muted">Driver</p><p class="font-semibold text-slate-800">{{ trip.driver.user.username }}</p></div>
+            <div><p class="text-sm text-muted">Loaded</p><p class="font-semibold text-slate-800">{{ trip.total_loaded_liters }}L / {{ trip.tanker.total_capacity }}L</p></div>
         </div>
         {% if trip.dispatched_at %}<p class="text-sm text-muted">Dispatched: {{ trip.dispatched_at|date:"M d, Y h:i A" }}</p>{% endif %}
         {% if trip.completed_at %}<p class="text-sm text-muted">Completed: {{ trip.completed_at|date:"M d, Y h:i A" }}</p>{% endif %}
-        <h2 class="text-lg font-semibold text-white mt-6 mb-3">Orders</h2>
+        <h2 class="text-lg font-semibold text-slate-800 mt-6 mb-3">Orders</h2>
         <div class="table-wrap">
         <table>
             <thead><tr><th>PO#</th><th>Customer</th><th>Product</th><th>Qty</th><th>Compartment</th><th>Status</th><th>Proof</th></tr></thead>

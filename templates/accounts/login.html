@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% block title %}Login{% endblock %}
 {% block content_anon %}
-<div class="min-h-screen flex items-center justify-center px-4 py-8" style="background: radial-gradient(ellipse at center, #0f172a 0%, #080c18 70%);">
+<div class="min-h-screen flex items-center justify-center px-4 py-8 bg-slate-50">
     <div class="w-full max-w-sm">
         <div class="text-center mb-8">
             <div class="text-5xl mb-3">⛽</div>
-            <h1 class="text-2xl font-extrabold text-white">Fuel<span class="text-orange-400">Portal</span></h1>
+            <h1 class="text-2xl font-bold text-slate-800">Fuel<span class="text-blue-600">Portal</span></h1>
             <p class="text-sm text-slate-500 mt-1">Ordering &amp; Delivery Management</p>
         </div>
-        <div class="card p-6 glow-orange">
+        <div class="card p-6">
             <form method="post" class="space-y-4">
                 {% csrf_token %}
                 <div>
@@ -21,7 +21,7 @@
                 </div>
                 {% if messages %}
                 {% for msg in messages %}
-                <div class="text-sm text-red-400 bg-red-900/30 rounded-lg px-3 py-2">{{ msg }}</div>
+                <div class="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2 border border-red-200">{{ msg }}</div>
                 {% endfor %}
                 {% endif %}
                 <button type="submit" id="loginBtn" class="btn-primary w-full justify-center py-2.5">
@@ -40,8 +40,8 @@
                 });
             </script>
         </div>
-        <p class="text-center text-sm text-slate-600 mt-6">Don't have an account?
-            <a href="{% url 'accounts:register' %}" class="text-orange-400 hover:text-orange-300 font-medium">Register</a>
+        <p class="text-center text-sm text-slate-500 mt-6">Don't have an account?
+            <a href="{% url 'accounts:register' %}" class="text-blue-600 hover:text-blue-700 font-medium">Register</a>
         </p>
     </div>
 </div>

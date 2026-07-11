@@ -3,7 +3,7 @@
 {% block content %}
 <div class="max-w-md mx-auto text-center">
     <div class="card p-8">
-        <h1 class="text-2xl font-bold text-red-400 mb-4">Delete User</h1>
+        <h1 class="text-2xl font-bold text-red-500 mb-4">Delete User</h1>
         <p class="text-muted mb-6">Are you sure you want to delete <strong>{{ delete_user.username }}</strong>?</p>
         <form method="post">
             {% csrf_token %}

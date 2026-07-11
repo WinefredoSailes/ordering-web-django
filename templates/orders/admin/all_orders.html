@@ -2,7 +2,7 @@
 {% block title %}All Orders{% endblock %}
 {% block content %}
 <div class="max-w-6xl mx-auto">
-    <h1 class="text-2xl font-bold text-white mb-6">All Orders</h1>
+    <h1 class="text-2xl font-bold text-slate-800 mb-6">All Orders</h1>
     <div class="filter-bar mb-6">
         <a href="{% url 'orders:admin_orders' %}" class="tab {% if not current_status %}tab-active{% else %}tab-inactive{% endif %}">All</a>
         <a href="{% url 'orders:admin_orders' %}?status=draft" class="tab {% if current_status == 'draft' %}tab-active{% else %}tab-inactive{% endif %}">Awaiting Payment</a>
