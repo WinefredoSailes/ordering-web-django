@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}My Messages{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">💬 Messages</h1>
+    <div class="bg-white rounded-lg shadow flex flex-col h-[calc(100vh-12rem)]">
+        <!-- Messages area -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+            {% for msg in messages %}
+            <div class="flex {% if msg.sender == request.user %}justify-end{% else %}justify-start{% endif %}">
+                <div class="max-w-[80%] {% if msg.sender == request.user %}bg-blue-600 text-white rounded-t-xl rounded-bl-xl{% elif msg.is_system %}bg-green-100 text-green-800 rounded-t-xl rounded-br-xl{% else %}bg-gray-100 text-gray-800 rounded-t-xl rounded-br-xl{% endif %} px-3 py-2">
+                    <p class="text-sm whitespace-pre-wrap">{{ msg.content }}</p>
+                    {% if msg.file %}
+                    <div class="mt-1">
+                        <a href="{{ msg.file.url }}" target="_blank" class="text-xs underline {% if msg.sender == request.user %}text-blue-200{% else %}text-blue-600{% endif %}">📎 View attachment</a>
+                    </div>
+                    {% endif %}
+                    <p class="text-xs mt-1 {% if msg.sender == request.user %}text-blue-200{% else %}text-gray-400{% endif %}">{{ msg.created_at|date:"g:i A" }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-gray-400 text-sm py-8">
+                <p>Send us a message to place an order or ask a question!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Input -->
+        <form method="post" enctype="multipart/form-data" class="border-t p-4 flex flex-col gap-2">
+            {% csrf_token %}
+            <div class="flex gap-2">
+                <input type="text" name="content" placeholder="Type your message..." class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer text-sm flex items-center gap-1">
+                    📎
+                    <input type="file" name="payment_file" accept="image/*" class="hidden" onchange="this.form.submit()">
+                </label>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">Send</button>
+            </div>
+            <p class="text-xs text-gray-400">Attach a payment proof image (optional)</p>
+        </form>
+    </div>
+</div>
+<script>
+    setTimeout(function() { location.reload(); }, 15000);
+</script>
+{% endblock %}

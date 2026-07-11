@@ -15,6 +15,7 @@ urlpatterns = [
     path('dashboard/customer/', views.customer_dashboard, name='customer_dashboard'),
     path('documents/', views.customer_documents, name='customer_documents'),
     path('documents/<int:pk>/delete/', views.customer_document_delete, name='customer_document_delete'),
+    path('messages/', views.customer_messages, name='customer_messages'),
 
     # ── Cashier ──
     path('cashier/dashboard/', views.cashier_dashboard, name='cashier_dashboard'),
@@ -34,6 +35,11 @@ urlpatterns = [
     path('hauling/tanker/<int:pk>/delete/', views.tanker_delete, name='tanker_delete'),
     path('hauling/tanker/<int:pk>/compartment/add/', views.compartment_add, name='compartment_add'),
     path('hauling/tanker/<int:pk>/compartment/<int:comp_id>/delete/', views.compartment_delete, name='compartment_delete'),
+    path('hauling/ops/', views.hauling_ops_chat, name='hauling_ops_chat'),
+    path('hauling/ops/preview-order/<int:conversation_id>/', views.hauling_preview_order, name='hauling_preview_order'),
+    path('hauling/ops/preview-modify/<int:conversation_id>/', views.hauling_preview_modify, name='hauling_preview_modify'),
+    path('hauling/ops/preview-reschedule/<int:conversation_id>/', views.hauling_preview_reschedule, name='hauling_preview_reschedule'),
+    path('hauling/ops/preview-custom/<int:conversation_id>/', views.hauling_preview_custom, name='hauling_preview_custom'),
 
     # ── Driver ──
     path('driver/dashboard/', views.driver_dashboard, name='driver_dashboard'),

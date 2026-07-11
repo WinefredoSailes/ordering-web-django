@@ -2,13 +2,14 @@ from datetime import datetime
 from django.db import models
 from django.db.models import Sum, Count, Avg, Q
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from .decorators.roles import role_required, cashier_required, hauling_required, superadmin_required
-from .models import Product, ProductPricing, CustomerGroup, Tanker, Compartment, Order, Payment, Driver, DispatchTrip, DispatchOrder, CustomerDocument, AuditLog
+from .models import Product, ProductPricing, CustomerGroup, Tanker, Compartment, Order, Payment, Driver, DispatchTrip, DispatchOrder, CustomerDocument, AuditLog, Conversation, Message
 from .services.pricing_service import get_best_price
 from .services.order_service import create_order
 from .services.payment_service import upload_payment, approve_payment, reject_payment
@@ -1015,3 +1016,249 @@ def driver_edit(request, pk):
         messages.success(request, 'Driver updated!')
         return redirect('orders:driver_list')
     return render(request, 'orders/admin/driver_form.html', {'driver': driver, 'users': []})
+
+
+# ─── Chat / Operations Views ─────────────────────────────────────
+
+@login_required
+@hauling_required
+def hauling_ops_chat(request):
+    sort = request.GET.get('sort', 'recent')
+    conversations = Conversation.objects.select_related('customer').all()
+    if sort == 'unread':
+        conversations = sorted(conversations, key=lambda c: c.unread_count, reverse=True)
+    elif sort == 'alpha':
+        conversations = sorted(conversations, key=lambda c: c.customer.username.lower())
+    else:
+        conversations = conversations.order_by('-updated_at')
+
+    active_conversation = None
+    messages_qs = []
+    selected = request.GET.get('with') or request.POST.get('conversation_id')
+
+    if request.method == 'POST' and request.POST.get('action') == 'send':
+        content = request.POST.get('content', '').strip()
+        if content:
+            conv = get_object_or_404(Conversation, id=selected)
+            Message.objects.create(
+                conversation=conv, sender=request.user,
+                content=content, is_system=False,
+            )
+            conv.updated_at = timezone.now()
+            conv.save(update_fields=['updated_at'])
+        return redirect(f'{request.path}?with={selected}')
+
+    if selected:
+        active_conversation = get_object_or_404(Conversation, id=selected)
+        active_conversation.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
+        messages_qs = active_conversation.messages.select_related('sender').all()
+
+    return render(request, 'orders/hauling/ops_chat.html', {
+        'conversations': conversations,
+        'active_conversation': active_conversation,
+        'messages': messages_qs,
+    })
+
+
+@login_required
+def customer_messages(request):
+    if request.user.role != 'customer':
+        return render(request, '403.html', status=403)
+
+    conv, _ = Conversation.objects.get_or_create(customer=request.user)
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        uploaded_file = request.FILES.get('payment_file')
+
+        if uploaded_file:
+            pending = Order.objects.filter(customer=request.user, status__in=('draft', 'ready_for_dispatch')).first()
+            if pending:
+                from .services.payment_service import upload_payment
+                payment = upload_payment(pending, uploaded_file, request)
+                link = request.build_absolute_uri(f'/order/{pending.pk}/')
+                msg = (
+                    f"📎 Payment uploaded for {pending.po_number}\n"
+                    f"Status: {payment.get_status_display()}\n"
+                    f"View details: {link}"
+                )
+                Message.objects.create(
+                    conversation=conv, sender=request.user,
+                    content=msg, is_system=True, related_order=pending,
+                )
+                conv.updated_at = timezone.now()
+                conv.save(update_fields=['updated_at'])
+            else:
+                msg_text = content or "📎 Payment file uploaded (no active order found)"
+                Message.objects.create(
+                    conversation=conv, sender=request.user,
+                    content=msg_text, is_system=False, file=uploaded_file,
+                )
+                conv.updated_at = timezone.now()
+                conv.save(update_fields=['updated_at'])
+        elif content:
+            Message.objects.create(
+                conversation=conv, sender=request.user,
+                content=content, is_system=False,
+            )
+            conv.updated_at = timezone.now()
+            conv.save(update_fields=['updated_at'])
+        return redirect('orders:customer_messages')
+
+    conv.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
+    msgs = conv.messages.select_related('sender').all()
+    return render(request, 'orders/customer/messages.html', {
+        'conversation': conv, 'messages': msgs,
+    })
+
+
+@login_required
+@hauling_required
+def hauling_preview_order(request, conversation_id):
+    conv = get_object_or_404(Conversation, id=conversation_id)
+    products = Product.objects.filter(is_active=True)
+    chat_url = reverse('orders:hauling_ops_chat')
+
+    if request.method == 'POST':
+        product_id = request.POST.get('product')
+        qty = request.POST.get('quantity')
+        price = request.POST.get('price')
+        po_override = request.POST.get('po_number', '').strip()
+        notes = request.POST.get('notes', '')
+
+        try:
+            qty = int(qty)
+        except (ValueError, TypeError):
+            messages.error(request, 'Invalid quantity')
+            return redirect(f'{chat_url}?with={conversation_id}')
+
+        product = get_object_or_404(Product, id=product_id)
+        if qty <= 0 or qty % product.order_multiple != 0:
+            messages.error(request, f'Must be multiple of {product.order_multiple}L')
+            return redirect(f'{chat_url}?with={conversation_id}')
+
+        from .services.order_service import create_order
+        try:
+            price_val = float(price) if price else None
+        except (ValueError, TypeError):
+            price_val = None
+
+        order = create_order(conv.customer, product, qty, conv.customer.address or '', notes, request)
+        if price_val:
+            order.price_per_liter = price_val
+            order.total_amount = price_val * qty
+        if po_override:
+            order.po_number = po_override
+        order.save()
+
+        total = order.total_amount or (order.price_per_liter * qty if order.price_per_liter else 0)
+        msg = (
+            f"✅ Created PO-{order.po_number} for {qty}L {product.shortcut}.\n"
+            f"Price: ₱{order.price_per_liter:.2f}/L | Total: ₱{total:,.2f}\n"
+            f"📎 Upload payment here → {request.build_absolute_uri('/order/' + str(order.pk) + '/')}"
+        )
+        Message.objects.create(conversation=conv, sender=request.user, content=msg, is_system=True, related_order=order)
+        Message.objects.create(conversation=conv, sender=request.user,
+            content=f"📦 Created PO-{order.po_number} for {conv.customer.username}: {qty}L {product.shortcut}",
+            is_system=True, related_order=order)
+        conv.updated_at = timezone.now()
+        conv.save(update_fields=['updated_at'])
+        messages.success(request, f'Order {order.po_number} created!')
+        return redirect(f'{chat_url}?with={conversation_id}')
+
+    default_price = None
+    if conv.customer.customer_group_id:
+        pricing = ProductPricing.objects.filter(
+            customer_group_id=conv.customer.customer_group_id, is_active=True
+        ).first()
+        if pricing:
+            default_price = pricing.price_per_liter
+    return render(request, 'orders/hauling/preview_order.html', {
+        'conv': conv, 'products': products, 'default_price': default_price,
+    })
+
+
+@login_required
+@hauling_required
+def hauling_preview_modify(request, conversation_id):
+    conv = get_object_or_404(Conversation, id=conversation_id)
+    orders = Order.objects.filter(customer=conv.customer).exclude(status__in=('delivered', 'cancelled'))
+    chat_url = reverse('orders:hauling_ops_chat')
+
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        new_qty = request.POST.get('quantity')
+        order = get_object_or_404(Order, id=order_id, customer=conv.customer)
+        try:
+            new_qty = int(new_qty)
+        except (ValueError, TypeError):
+            messages.error(request, 'Invalid quantity')
+            return redirect(f'{chat_url}?with={conversation_id}')
+        old_qty = order.quantity_liters
+        order.quantity_liters = new_qty
+        if order.price_per_liter:
+            order.total_amount = order.price_per_liter * new_qty
+        order.save()
+
+        msg = f"📋 PO-{order.po_number} modified: {old_qty}L → {new_qty}L"
+        Message.objects.create(conversation=conv, sender=request.user, content=msg, is_system=True, related_order=order)
+        conv.updated_at = timezone.now()
+        conv.save(update_fields=['updated_at'])
+        messages.success(request, msg)
+        return redirect(f'{chat_url}?with={conversation_id}')
+
+    return render(request, 'orders/hauling/preview_modify.html', {
+        'conv': conv, 'orders': orders,
+    })
+
+
+@login_required
+@hauling_required
+def hauling_preview_reschedule(request, conversation_id):
+    conv = get_object_or_404(Conversation, id=conversation_id)
+    orders = Order.objects.filter(customer=conv.customer).exclude(status__in=('delivered', 'cancelled'))
+    chat_url = reverse('orders:hauling_ops_chat')
+
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        new_date = request.POST.get('new_date')
+        order = get_object_or_404(Order, id=order_id, customer=conv.customer)
+        from django.utils.dateparse import parse_date
+        parsed = parse_date(new_date) if new_date else None
+        if parsed:
+            if order.status in ('dispatched', 'in_transit'):
+                messages.warning(request, f'⚠️ {order.po_number} is already {order.status}. Rescheduling may affect trips.')
+            order.notes = (order.notes + f'\nRescheduled to {new_date}').strip()
+            order.save()
+            msg = f"📅 PO-{order.po_number} rescheduled to {new_date}"
+            Message.objects.create(conversation=conv, sender=request.user, content=msg, is_system=True, related_order=order)
+            conv.updated_at = timezone.now()
+            conv.save(update_fields=['updated_at'])
+            messages.success(request, msg)
+        else:
+            messages.error(request, 'Invalid date')
+        return redirect(f'{chat_url}?with={conversation_id}')
+
+    return render(request, 'orders/hauling/preview_reschedule.html', {
+        'conv': conv, 'orders': orders,
+    })
+
+
+@login_required
+@hauling_required
+def hauling_preview_custom(request, conversation_id):
+    conv = get_object_or_404(Conversation, id=conversation_id)
+    chat_url = reverse('orders:hauling_ops_chat')
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        if content:
+            Message.objects.create(
+                conversation=conv, sender=request.user,
+                content=content, is_system=False,
+            )
+            conv.updated_at = timezone.now()
+            conv.save(update_fields=['updated_at'])
+        return redirect(f'{chat_url}?with={conversation_id}')
+
+    return render(request, 'orders/hauling/preview_custom.html', {'conv': conv})

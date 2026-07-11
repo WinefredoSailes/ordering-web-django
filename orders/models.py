@@ -258,6 +258,50 @@ class CustomerDocument(models.Model):
         return f"{self.user.username} - {self.get_document_type_display()}"
 
 
+class Conversation(models.Model):
+    customer = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='conversations', limit_choices_to={'role': 'customer'}
+    )
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='assigned_conversations'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"Conversation with {self.customer.username}"
+
+    @property
+    def last_message(self):
+        return self.messages.order_by('-created_at').first()
+
+    @property
+    def unread_count(self):
+        return self.messages.filter(is_read=False).exclude(sender=self.assigned_to).count()
+
+
+class Message(models.Model):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
+    content = models.TextField()
+    is_system = models.BooleanField(default=False, help_text="Auto-generated reply")
+    related_order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to='chat_attachments/%Y/%m/%d/', blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"[{self.conversation.customer.username}] {self.content[:60]}"
+
+
 class AuditLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='audit_logs')
     action = models.CharField(max_length=100)

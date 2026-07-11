@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Operations Chat{% endblock %}
+{% block content %}
+<div class="flex h-[calc(100vh-3.5rem)] -mx-4 sm:-mx-6 lg:-mx-8">
+    <!-- Conversations sidebar -->
+    <div class="w-72 bg-white border-r flex-shrink-0 hidden sm:flex flex-col">
+        <div class="p-3 border-b">
+            <h2 class="font-semibold text-gray-800">Conversations</h2>
+            <div class="flex gap-1 mt-2">
+                <a href="?sort=unread" class="text-xs px-2 py-1 rounded {% if request.GET.sort == 'unread' %}bg-blue-100 text-blue-700{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">Unread</a>
+                <a href="?sort=recent" class="text-xs px-2 py-1 rounded {% if request.GET.sort == 'recent' or not request.GET.sort %}bg-blue-100 text-blue-700{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">Recent</a>
+                <a href="?sort=alpha" class="text-xs px-2 py-1 rounded {% if request.GET.sort == 'alpha' %}bg-blue-100 text-blue-700{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">A-Z</a>
+            </div>
+        </div>
+        <div class="flex-1 overflow-y-auto">
+            {% for conv in conversations %}
+            <a href="?with={{ conv.id }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+               class="block px-4 py-3 border-b hover:bg-gray-50 {% if active_conversation.id == conv.id %}bg-blue-50 border-l-4 border-l-blue-600{% endif %}">
+                <div class="flex justify-between items-start">
+                    <span class="font-medium text-sm">{{ conv.customer.business_name|default:conv.customer.username }}</span>
+                    {% if conv.unread_count > 0 and active_conversation.id != conv.id %}
+                    <span class="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ conv.unread_count }}</span>
+                    {% endif %}
+                </div>
+                {% if conv.last_message %}
+                <p class="text-xs text-gray-500 truncate mt-0.5">{{ conv.last_message.content }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">{{ conv.last_message.created_at|timesince }} ago</p>
+                {% else %}
+                <p class="text-xs text-gray-400 mt-0.5">No messages yet</p>
+                {% endif %}
+            </a>
+            {% empty %}
+            <p class="text-sm text-gray-500 p-4 text-center">No conversations yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Mobile conversation list (shown when no conversation selected) -->
+    {% if not active_conversation %}
+    <div class="flex-1 flex flex-col sm:hidden">
+        <div class="p-3 border-b bg-white">
+            <h2 class="font-semibold text-gray-800">Conversations</h2>
+        </div>
+        <div class="flex-1 overflow-y-auto">
+            {% for conv in conversations %}
+            <a href="?with={{ conv.id }}" class="block px-4 py-3 border-b hover:bg-gray-50">
+                <div class="flex justify-between items-start">
+                    <span class="font-medium text-sm">{{ conv.customer.business_name|default:conv.customer.username }}</span>
+                    {% if conv.unread_count > 0 %}<span class="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ conv.unread_count }}</span>{% endif %}
+                </div>
+                {% if conv.last_message %}<p class="text-xs text-gray-500 truncate mt-0.5">{{ conv.last_message.created_at|timesince }} ago</p>{% endif %}
+            </a>
+            {% empty %}<p class="text-sm text-gray-500 p-4 text-center">No conversations yet.</p>{% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Active chat area -->
+    <div class="flex-1 flex flex-col {% if not active_conversation %}hidden sm:flex{% endif %}">
+        {% if active_conversation %}
+        <!-- Chat header -->
+        <div class="bg-white border-b px-4 py-3 flex items-center gap-3">
+            <a href="{{ request.path }}" class="sm:hidden text-gray-500 hover:text-gray-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </a>
+            <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">{{ active_conversation.customer.username|first|upper }}</div>
+            <div>
+                <p class="font-medium text-sm">{{ active_conversation.customer.business_name|default:active_conversation.customer.username }}</p>
+                <p class="text-xs text-gray-500">{{ active_conversation.customer.phone }}</p>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">
+            {% for msg in messages %}
+            <div class="flex {% if msg.sender == request.user %}justify-end{% else %}justify-start{% endif %}">
+                <div class="max-w-[80%] {% if msg.sender == request.user %}bg-blue-600 text-white rounded-t-xl rounded-bl-xl{% elif msg.is_system %}bg-green-100 text-green-800 rounded-t-xl rounded-br-xl{% else %}bg-white text-gray-800 rounded-t-xl rounded-br-xl shadow-sm{% endif %} px-3 py-2">
+                    <p class="text-sm whitespace-pre-wrap">{{ msg.content }}</p>
+                    <p class="text-xs mt-1 {% if msg.sender == request.user %}text-blue-200{% else %}text-gray-400{% endif %}">{{ msg.created_at|date:"g:i A" }}</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-gray-400 text-sm py-8">No messages yet. Start the conversation!</div>
+            {% endfor %}
+        </div>
+
+        <!-- Quick actions + input -->
+        <div class="bg-white border-t px-4 py-3 space-y-2">
+            <div class="flex flex-wrap gap-1.5">
+                <a href="{% url 'orders:hauling_preview_order' active_conversation.id %}?with={{ active_conversation.id }}" class="text-xs px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200">📦 Order</a>
+                <a href="{% url 'orders:hauling_preview_modify' active_conversation.id %}?with={{ active_conversation.id }}" class="text-xs px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200">📋 Modify</a>
+                <a href="{% url 'orders:hauling_preview_reschedule' active_conversation.id %}?with={{ active_conversation.id }}" class="text-xs px-3 py-1.5 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200">📅 Reschedule</a>
+                <a href="{% url 'orders:hauling_preview_custom' active_conversation.id %}?with={{ active_conversation.id }}" class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200">💬 Reply</a>
+            </div>
+            <form method="post" action="{% url 'orders:hauling_ops_chat' %}?with={{ active_conversation.id }}" class="flex gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="send">
+                <input type="hidden" name="conversation_id" value="{{ active_conversation.id }}">
+                <input type="text" name="content" placeholder="Type a message..." required class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">Send</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="flex-1 flex items-center justify-center text-gray-400">
+            <div class="text-center">
+                <svg class="w-16 h-16 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <p class="text-sm">Select a conversation to start chatting</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% if active_conversation %}
+<script>
+    setTimeout(function() { location.reload(); }, 15000);
+</script>
+{% endif %}
+{% endblock %}
