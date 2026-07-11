@@ -172,7 +172,7 @@
                     <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
                     {% elif request.user.role == 'hauling' %}
                     <a href="{% url 'orders:hauling_dashboard' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
-                    <a href="{% url 'orders:hauling_ops_chat' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>💬</span><span x-show="!collapsed">Ops</span></a>
+                    <a href="{% url 'orders:hauling_ops_chat' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>💬</span><span x-show="!collapsed">Inbox</span></a>
                     <a href="{% url 'orders:hauling_orders' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📋</span><span x-show="!collapsed">Orders</span></a>
                     <a href="{% url 'orders:create_trip' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🚛</span><span x-show="!collapsed">Dispatch</span></a>
                     <a href="{% url 'orders:hauling_trips' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🗺️</span><span x-show="!collapsed">Trips</span></a>
