@@ -563,3 +563,128 @@ class EndToEndWorkflowTest(TestCase):
         self.assertTrue(AuditLog.objects.filter(action='TRIP_CREATED').exists())
         self.assertTrue(AuditLog.objects.filter(action='Marked In Transit').exists())
         self.assertTrue(AuditLog.objects.filter(action='Delivered').exists())
+
+    # ══════════════════════════════════════════════════════════
+    # STEP 10: SUPERADMIN GOD MODE (Option A)
+    # ══════════════════════════════════════════════════════════
+
+    def test_superadmin_god_mode_covers_all_roles(self):
+        """Superadmin can act as cashier → hauling → driver across the full chain."""
+        # ── Prerequisite: customer creates order + uploads payment ──
+        self.client.login(username='test_customer', password='custpass')
+        self.client.post(reverse('orders:create_order'), {
+            'product': self.product.id,
+            'quantity_liters': 1500,
+            'delivery_address': 'God Mode Address',
+            'notes': 'god mode test',
+        })
+        order = Order.objects.get(customer=self.customer)
+        self.client.post(
+            reverse('orders:upload_payment', args=[order.pk]),
+            {'payment_file': fake_image('god_pay.png')}
+        )
+        payment = Payment.objects.get(order=order)
+
+        # ── 1. Superadmin as CASHIER: browse payments, approve ──
+        self.client.login(username='admin', password='adminpass')
+
+        resp = self.client.get(reverse('orders:cashier_payments'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, order.po_number)
+
+        resp = self.client.post(
+            reverse('orders:verify_payment', args=[payment.pk]),
+            {'action': 'approve'}
+        )
+        self.assertRedirects(resp, reverse('orders:cashier_payments'))
+        payment.refresh_from_db()
+        order.refresh_from_db()
+        self.assertEqual(payment.status, 'approved')
+        self.assertEqual(order.status, 'ready_for_dispatch')
+
+        # ── 2. Superadmin as HAULING: orders page, create trip ──
+        resp = self.client.get(reverse('orders:hauling_orders'))
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.post(reverse('orders:create_trip'), {
+            'tanker': self.tanker.id,
+            'driver': self.driver.id,
+            'orders': [order.id],
+            'compartment': [self.tanker.compartments.first().id],
+        })
+        self.assertRedirects(resp, reverse('orders:hauling_trips'))
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'dispatched')
+        trip = DispatchTrip.objects.get(tanker=self.tanker)
+
+        # ── 3. Superadmin as DRIVER: mark in-transit, deliver ──
+        do = trip.dispatch_orders.first()
+
+        resp = self.client.post(
+            reverse('orders:mark_in_transit', args=[do.pk]),
+            {'status': 'in_transit'}
+        )
+        self.assertRedirects(resp, reverse('orders:driver_trips'))
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'in_transit')
+
+        resp = self.client.post(
+            reverse('orders:mark_delivered', args=[do.pk]),
+            {'delivery_notes': 'Superadmin delivered', 'delivery_proof': fake_image('god_delivery.png')}
+        )
+        self.assertRedirects(resp, reverse('orders:driver_trips'))
+        order.refresh_from_db()
+        do.refresh_from_db()
+        trip.refresh_from_db()
+        self.driver.refresh_from_db()
+        self.assertEqual(order.status, 'delivered')
+        self.assertIsNotNone(do.delivery_proof)
+        self.assertIsNotNone(trip.completed_at)
+        self.assertTrue(self.driver.is_available)
+
+        # ── 4. Superadmin checks revenue dashboards ──
+        resp = self.client.get(reverse('orders:earned_revenue'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, order.po_number)
+
+        resp = self.client.get(reverse('orders:unearned_revenue'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, order.po_number)  # already delivered
+
+        # ── 5. Superadmin checks audit logs ──
+        resp = self.client.get(reverse('orders:audit_logs'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(AuditLog.objects.filter(action='ORDER_CREATED', object_id=order.pk).exists())
+        self.assertTrue(AuditLog.objects.filter(action='PAYMENT_APPROVED', object_id=payment.pk).exists())
+        self.assertTrue(AuditLog.objects.filter(action='TRIP_CREATED').exists())
+
+        # ── 6. Superadmin accesses inbox ──
+        resp = self.client.get(reverse('orders:hauling_ops_chat'))
+        self.assertEqual(resp.status_code, 200)
+
+        # ── 7. Superadmin can also reject a payment (cashier duty) ──
+        self.client.login(username='test_customer', password='custpass')
+        self.client.post(reverse('orders:create_order'), {
+            'product': self.product.id,
+            'quantity_liters': 500,
+            'delivery_address': 'Reject Test',
+            'notes': 'reject me',
+        })
+        order2 = Order.objects.exclude(pk=order.pk).get(customer=self.customer)
+        self.client.post(
+            reverse('orders:upload_payment', args=[order2.pk]),
+            {'payment_file': fake_image('reject_pay.png')}
+        )
+        payment2 = Payment.objects.get(order=order2)
+
+        self.client.login(username='admin', password='adminpass')
+        resp = self.client.post(
+            reverse('orders:verify_payment', args=[payment2.pk]),
+            {'action': 'reject', 'rejection_reason': 'Proof not clear enough'}
+        )
+        self.assertRedirects(resp, reverse('orders:cashier_payments'))
+        payment2.refresh_from_db()
+        order2.refresh_from_db()
+        self.assertEqual(payment2.status, 'rejected')
+        self.assertEqual(payment2.rejection_reason, 'Proof not clear enough')
+        self.assertEqual(order2.status, 'draft')

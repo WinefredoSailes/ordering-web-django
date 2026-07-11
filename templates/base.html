@@ -184,17 +184,22 @@
                     <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
                     {% elif request.user.role == 'superadmin' %}
                     <a href="{% url 'orders:superadmin_dashboard' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
+                    <a href="{% url 'orders:hauling_ops_chat' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📨</span><span x-show="!collapsed">Inbox</span></a>
+                    <a href="{% url 'orders:cashier_payments' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>💳</span><span x-show="!collapsed">Payments</span></a>
+                    <a href="{% url 'orders:hauling_orders' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📦</span><span x-show="!collapsed">Dispatch</span></a>
+                    <a href="{% url 'orders:hauling_trips' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🚛</span><span x-show="!collapsed">Trips</span></a>
                     <a href="{% url 'orders:admin_orders' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📋</span><span x-show="!collapsed">Orders</span></a>
                     <a href="{% url 'orders:group_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👥</span><span x-show="!collapsed">Groups</span></a>
                     <a href="{% url 'orders:pricing_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>💰</span><span x-show="!collapsed">Pricing</span></a>
                     <a href="{% url 'orders:product_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📦</span><span x-show="!collapsed">Products</span></a>
                     <a href="{% url 'orders:tanker_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>⛽</span><span x-show="!collapsed">Tankers</span></a>
-                    <a href="{% url 'orders:driver_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🚛</span><span x-show="!collapsed">Drivers</span></a>
+                    <a href="{% url 'orders:driver_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🔧</span><span x-show="!collapsed">Drivers</span></a>
                     <a href="{% url 'accounts:user_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Users</span></a>
                     <a href="{% url 'orders:audit_logs' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📜</span><span x-show="!collapsed">Logs</span></a>
+                    <a href="{% url 'orders:sales_report' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📈</span><span x-show="!collapsed">Sales</span></a>
                     <a href="{% url 'orders:earned_revenue' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>✅</span><span x-show="!collapsed">Earned</span></a>
                     <a href="{% url 'orders:unearned_revenue' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>⏳</span><span x-show="!collapsed">Unearned</span></a>
-                    <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
+                    <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>⚙️</span><span x-show="!collapsed">Profile</span></a>
                     {% endif %}
                 </nav>
 

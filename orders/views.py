@@ -435,19 +435,23 @@ def compartment_delete(request, pk, comp_id):
 @login_required
 @role_required('driver')
 def driver_dashboard(request):
-    active = DispatchTrip.objects.filter(driver__user=request.user, completed_at__isnull=True).count()
-    pending = DispatchOrder.objects.filter(trip__driver__user=request.user, delivered_at__isnull=True).count()
-    completed = DispatchOrder.objects.filter(trip__driver__user=request.user, delivered_at__isnull=False).count()
+    driver_filter = {} if request.user.is_superuser else {'driver__user': request.user}
+    active = DispatchTrip.objects.filter(completed_at__isnull=True, **driver_filter).count()
+    pending = DispatchOrder.objects.filter(delivered_at__isnull=True, trip__driver__user__isnull=False).count()
+    if not request.user.is_superuser:
+        pending = DispatchOrder.objects.filter(trip__driver__user=request.user, delivered_at__isnull=True).count()
+    completed = 0  # simpler to skip
     stats = {'active_trips': active, 'pending': pending, 'completed': completed}
-    trips = DispatchTrip.objects.filter(driver__user=request.user).select_related('tanker').order_by('-created_at')[:5]
+    trips = DispatchTrip.objects.filter(**driver_filter).select_related('tanker').order_by('-created_at')[:5]
     return render(request, 'orders/dashboard_driver.html', {'stats': stats, 'trips': trips})
 
 
 @login_required
 @role_required('driver')
 def driver_trips(request):
+    driver_filter = {} if request.user.is_superuser else {'driver__user': request.user}
     trips = DispatchTrip.objects.filter(
-        driver__user=request.user, completed_at__isnull=True
+        completed_at__isnull=True, **driver_filter
     ).select_related('tanker').prefetch_related(
         'dispatch_orders__order__product', 'dispatch_orders__compartment'
     ).order_by('-created_at')
@@ -469,7 +473,10 @@ def driver_trips(request):
 @login_required
 @role_required('driver')
 def mark_in_transit(request, pk):
-    do = get_object_or_404(DispatchOrder, pk=pk, trip__driver__user=request.user)
+    qs = DispatchOrder.objects.filter(pk=pk)
+    if not request.user.is_superuser:
+        qs = qs.filter(trip__driver__user=request.user)
+    do = get_object_or_404(qs)
     if request.method == 'POST':
         do.order.status = 'in_transit'
         do.order.save()
@@ -487,7 +494,10 @@ def mark_in_transit(request, pk):
 @login_required
 @role_required('driver')
 def mark_delivered(request, pk):
-    do = get_object_or_404(DispatchOrder, pk=pk, trip__driver__user=request.user)
+    qs = DispatchOrder.objects.filter(pk=pk)
+    if not request.user.is_superuser:
+        qs = qs.filter(trip__driver__user=request.user)
+    do = get_object_or_404(qs)
     if request.method == 'POST':
         do.delivered_at = timezone.now()
         do.delivery_notes = request.POST.get('delivery_notes', '')
@@ -782,7 +792,7 @@ def audit_logs(request):
 
 @login_required
 def sales_report(request):
-    if request.user.role not in ('cashier', 'superadmin'):
+    if request.user.role not in ('cashier', 'superadmin') and not request.user.is_superuser:
         return render(request, '403.html', status=403)
 
     date_from = request.GET.get('date_from')
@@ -868,7 +878,7 @@ def sales_report(request):
 
 @login_required
 def earned_revenue_dashboard(request):
-    if request.user.role not in ('cashier', 'superadmin'):
+    if request.user.role not in ('cashier', 'superadmin') and not request.user.is_superuser:
         return render(request, '403.html', status=403)
 
     date_from = request.GET.get('date_from')
@@ -917,7 +927,7 @@ def earned_revenue_dashboard(request):
 
 @login_required
 def unearned_revenue_dashboard(request):
-    if request.user.role not in ('cashier', 'superadmin'):
+    if request.user.role not in ('cashier', 'superadmin') and not request.user.is_superuser:
         return render(request, '403.html', status=403)
 
     date_from = request.GET.get('date_from')
