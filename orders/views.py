@@ -260,8 +260,10 @@ def hauling_dashboard(request):
 @login_required
 @hauling_required
 def hauling_orders(request):
-    status_filter = request.GET.get('status', 'ready_for_dispatch')
-    orders = Order.objects.filter(status=status_filter).select_related('customer', 'product')
+    status_filter = request.GET.get('status', '')
+    orders = Order.objects.select_related('customer', 'product')
+    if status_filter:
+        orders = orders.filter(status=status_filter)
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     if date_from:

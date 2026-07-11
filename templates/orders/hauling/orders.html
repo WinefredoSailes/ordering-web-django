@@ -4,6 +4,8 @@
 <div class="max-w-6xl mx-auto">
     <h1 class="text-2xl font-bold text-gray-800 mb-6">Orders</h1>
     <div class="mb-4 flex flex-wrap gap-1 sm:gap-2">
+        <a href="{% url 'orders:hauling_orders' %}" class="px-4 py-2 rounded-lg {% if not current_status %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">All</a>
+        <a href="{% url 'orders:hauling_orders' %}?status=draft" class="px-4 py-2 rounded-lg {% if current_status == 'draft' %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">Draft</a>
         <a href="{% url 'orders:hauling_orders' %}?status=ready_for_dispatch" class="px-4 py-2 rounded-lg {% if current_status == 'ready_for_dispatch' %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">Ready</a>
         <a href="{% url 'orders:hauling_orders' %}?status=dispatched" class="px-4 py-2 rounded-lg {% if current_status == 'dispatched' %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">Dispatched</a>
         <a href="{% url 'orders:hauling_orders' %}?status=in_transit" class="px-4 py-2 rounded-lg {% if current_status == 'in_transit' %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">In Transit</a>
@@ -35,10 +37,12 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm">{{ order.customer.username }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">{{ order.product.shortcut }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">{{ order.quantity_liters }}L</td>
-                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded-full {% if order.status == 'ready_for_dispatch' %}bg-green-100 text-green-800{% elif order.status == 'dispatched' %}bg-purple-100 text-purple-800{% elif order.status == 'in_transit' %}bg-indigo-100 text-indigo-800{% elif order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}">{{ order.get_status_display }}</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded-full {% if order.status == 'draft' %}bg-yellow-100 text-yellow-800{% elif order.status == 'ready_for_dispatch' %}bg-green-100 text-green-800{% elif order.status == 'dispatched' %}bg-purple-100 text-purple-800{% elif order.status == 'in_transit' %}bg-indigo-100 text-indigo-800{% elif order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}">{{ order.get_status_display }}</span></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.created_at|date:"M d, Y" }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm"><a href="{% url 'orders:order_detail' order.pk %}" class="text-blue-600 hover:text-blue-900">View</a></td>
                 </tr>
+                {% empty %}
+                <tr><td colspan="7" class="px-6 py-12 text-center text-gray-400">No orders found. Try a different filter tab.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
