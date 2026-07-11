@@ -2,33 +2,33 @@
 {% block title %}Place Order{% endblock %}
 {% block content %}
 <div class="max-w-lg mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Place Order</h1>
-    <form id="orderForm" method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+    <h1 class="text-2xl font-bold text-white mb-6">Place Order</h1>
+    <form id="orderForm" method="post" class="card p-6 space-y-4">
         {% csrf_token %}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
-            <select name="product" id="productSelect" required class="w-full border rounded-lg p-2">
+            <label class="label">Product</label>
+            <select name="product" id="productSelect" required class="input">
                 <option value="">Select product...</option>
                 {% for p in products %}
                 <option value="{{ p.id }}" data-multiple="{{ p.order_multiple }}" {% if preselected == p.id|stringformat:"s" %}selected{% endif %}>{{ p.shortcut }} - {{ p.name }}</option>
                 {% endfor %}
             </select>
-            <p id="priceDisplay" class="text-sm text-gray-500 mt-1"></p>
+            <p id="priceDisplay" class="text-sm text-muted mt-1"></p>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Quantity (Liters)</label>
-            <input type="number" name="quantity_liters" id="quantityInput" min="500" step="500" required class="w-full border rounded-lg p-2">
-            <p id="multipleHint" class="text-sm text-gray-500 mt-1">Must be a multiple of 500L</p>
+            <label class="label">Quantity (Liters)</label>
+            <input type="number" name="quantity_liters" id="quantityInput" min="500" step="500" required class="input">
+            <p id="multipleHint" class="text-sm text-muted mt-1">Must be a multiple of 500L</p>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
-            <textarea name="delivery_address" rows="3" required class="w-full border rounded-lg p-2">{{ request.user.address }}</textarea>
+            <label class="label">Delivery Address</label>
+            <textarea name="delivery_address" rows="3" required class="input">{{ request.user.address }}</textarea>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
-            <textarea name="notes" rows="2" class="w-full border rounded-lg p-2"></textarea>
+            <label class="label">Notes (optional)</label>
+            <textarea name="notes" rows="2" class="input"></textarea>
         </div>
-        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">Place Order</button>
+        <button type="submit" class="btn-primary w-full">Place Order</button>
     </form>
 </div>
 <script>

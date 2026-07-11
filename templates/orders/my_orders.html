@@ -2,67 +2,67 @@
 {% block title %}My Orders{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">My Orders</h1>
+    <h1 class="text-2xl font-bold text-white mb-6">My Orders</h1>
 
-    <form method="get" class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap items-end gap-4">
+    <form method="get" class="filter-bar p-4 mb-6 flex flex-wrap items-end gap-4">
         <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
-            <input type="date" name="date_from" value="{{ filters.date_from }}" class="border rounded-lg p-2 text-sm">
+            <label class="label text-xs">From</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}" class="input text-sm">
         </div>
         <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
-            <input type="date" name="date_to" value="{{ filters.date_to }}" class="border rounded-lg p-2 text-sm">
+            <label class="label text-xs">To</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}" class="input text-sm">
         </div>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">Filter</button>
-        {% if filters.date_from or filters.date_to %}<a href="{% url 'orders:my_orders' %}" class="text-gray-600 hover:text-gray-800 text-sm py-2">Clear</a>{% endif %}
+        <button type="submit" class="btn-primary btn-sm">Filter</button>
+        {% if filters.date_from or filters.date_to %}<a href="{% url 'orders:my_orders' %}" class="text-muted hover:text-bright text-sm py-2">Clear</a>{% endif %}
     </form>
 
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+    <div class="card">
+        <div class="table-wrap">
+        <table>
+            <thead class="bg-surface">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PO#</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">PO#</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Product</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Qty</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Payment</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Action</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
                 {% for order in orders %}
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-surface">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{{ order.po_number }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">{{ order.product.shortcut }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">{{ order.quantity_liters }}L</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs rounded-full
-                            {% if order.status == 'draft' %}bg-yellow-100 text-yellow-800
-                            {% elif order.status == 'ready_for_dispatch' %}bg-green-100 text-green-800
-                            {% elif order.status == 'dispatched' %}bg-purple-100 text-purple-800
-                            {% elif order.status == 'in_transit' %}bg-indigo-100 text-indigo-800
-                            {% elif order.status == 'delivered' %}bg-green-100 text-green-800{% endif %}">
+                        <span class="badge
+                            {% if order.status == 'draft' %}badge-yellow
+                            {% elif order.status == 'ready_for_dispatch' %}badge-green
+                            {% elif order.status == 'dispatched' %}badge-purple
+                            {% elif order.status == 'in_transit' %}badge-indigo
+                            {% elif order.status == 'delivered' %}badge-green{% endif %}">
                             {{ order.get_status_display }}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {% with p=order.latest_payment %}
                         {% if p %}
-                        <span class="px-2 py-1 text-xs rounded-full
-                            {% if p.status == 'uploaded' %}bg-blue-100 text-blue-800
-                            {% elif p.status == 'approved' %}bg-green-100 text-green-800
-                            {% elif p.status == 'rejected' %}bg-red-100 text-red-800{% endif %}">
+                        <span class="badge
+                            {% if p.status == 'uploaded' %}badge-blue
+                            {% elif p.status == 'approved' %}badge-green
+                            {% elif p.status == 'rejected' %}badge-red{% endif %}">
                             {{ p.get_status_display }}
                         </span>
                         {% else %}
-                        <span class="text-gray-400 text-xs">Not uploaded</span>
+                        <span class="text-muted text-xs">Not uploaded</span>
                         {% endif %}
                         {% endwith %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.created_at|date:"M d, Y" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm"><a href="{% url 'orders:order_detail' order.pk %}" class="text-blue-600 hover:text-blue-900">View</a></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-muted">{{ order.created_at|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm"><a href="{% url 'orders:order_detail' order.pk %}" class="link">View</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -2,20 +2,20 @@
 {% block title %}{% if pricing %}Edit{% else %}Create{% endif %} Pricing{% endblock %}
 {% block content %}
 <div class="max-w-lg mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">{% if pricing %}Edit{% else %}Create{% endif %} Pricing</h1>
-    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+    <h1 class="text-2xl font-bold text-white mb-6">{% if pricing %}Edit{% else %}Create{% endif %} Pricing</h1>
+    <form method="post" class="card space-y-4 p-6">
         {% csrf_token %}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
-            <select name="product" required class="w-full border rounded-lg p-2">
+            <label class="label">Product</label>
+            <select name="product" required class="input">
                 {% for p in products %}
                 <option value="{{ p.id }}" {% if pricing.product_id == p.id %}selected{% endif %}>{{ p.shortcut }} - {{ p.name }}</option>
                 {% endfor %}
             </select>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Customer Group (optional)</label>
-            <select name="customer_group" class="w-full border rounded-lg p-2">
+            <label class="label">Customer Group (optional)</label>
+            <select name="customer_group" class="input">
                 <option value="">All groups</option>
                 {% for g in groups %}
                 <option value="{{ g.id }}" {% if pricing.customer_group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
@@ -23,8 +23,8 @@
             </select>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Specific Customer (optional, overrides group)</label>
-            <select name="customer" class="w-full border rounded-lg p-2">
+            <label class="label">Specific Customer (optional, overrides group)</label>
+            <select name="customer" class="input">
                 <option value="">All customers</option>
                 {% for c in customers %}
                 <option value="{{ c.id }}" {% if pricing.customer_id == c.id %}selected{% endif %}>{{ c.username }}</option>
@@ -32,18 +32,18 @@
             </select>
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Price per Liter (₱)</label>
-            <input type="number" name="price_per_liter" value="{{ pricing.price_per_liter|default:'' }}" step="0.01" required class="w-full border rounded-lg p-2">
+            <label class="label">Price per Liter (₱)</label>
+            <input type="number" name="price_per_liter" value="{{ pricing.price_per_liter|default:'' }}" step="0.01" required class="input">
         </div>
         {% if pricing %}
         <div>
             <label class="flex items-center">
                 <input type="checkbox" name="is_active" {% if pricing.is_active %}checked{% endif %} class="mr-2">
-                <span class="text-sm font-medium text-gray-700">Active</span>
+                <span class="label" style="text-transform:none;letter-spacing:0">Active</span>
             </label>
         </div>
         {% endif %}
-        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">{% if pricing %}Update{% else %}Create{% endif %} Pricing</button>
+        <button type="submit" class="btn-primary w-full justify-center">{% if pricing %}Update{% else %}Create{% endif %} Pricing</button>
     </form>
 </div>
 {% endblock %}

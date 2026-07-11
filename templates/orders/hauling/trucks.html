@@ -3,8 +3,8 @@
 {% block content %}
 <div class="max-w-5xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Trucks</h1>
-        <a href="{% url 'orders:truck_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add Truck</a>
+        <h1 class="text-2xl font-bold text-white">Trucks</h1>
+        <a href="{% url 'orders:truck_create' %}" class="btn-primary">Add Truck</a>
     </div>
     <div class="grid md:grid-cols-2 gap-6" id="truckList">
         {% include "orders/partials/truck_list.html" %}

@@ -2,48 +2,48 @@
 {% block title %}My Profile{% endblock %}
 {% block content %}
 <div class="max-w-lg mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">My Profile</h1>
-    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+    <h1 class="text-2xl font-bold text-bright mb-6">My Profile</h1>
+    <form method="post" class="card p-6 space-y-4">
         {% csrf_token %}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-            <input type="text" value="{{ request.user.username }}" disabled class="w-full border rounded-lg p-2 bg-gray-50">
+            <label class="label">Username</label>
+            <input type="text" value="{{ request.user.username }}" disabled class="input">
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" value="{{ request.user.email }}" disabled class="w-full border rounded-lg p-2 bg-gray-50">
+            <label class="label">Email</label>
+            <input type="email" value="{{ request.user.email }}" disabled class="input">
         </div>
         {% if request.user.role == 'customer' or request.user.role == 'superadmin' %}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
-            <input type="text" name="business_name" value="{{ request.user.business_name }}" class="w-full border rounded-lg p-2">
+            <label class="label">Business Name</label>
+            <input type="text" name="business_name" value="{{ request.user.business_name }}" class="input">
         </div>
         {% endif %}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-            <input type="text" name="phone" value="{{ request.user.phone }}" class="w-full border rounded-lg p-2">
+            <label class="label">Phone</label>
+            <input type="text" name="phone" value="{{ request.user.phone }}" class="input">
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-            <textarea name="address" rows="2" class="w-full border rounded-lg p-2">{{ request.user.address }}</textarea>
+            <label class="label">Address</label>
+            <textarea name="address" rows="2" class="input">{{ request.user.address }}</textarea>
         </div>
         {% if request.user.role == 'driver' and driver_profile %}
-        <hr class="my-2">
-        <h2 class="text-lg font-semibold text-gray-700">Driver License Info</h2>
+        <hr class="divider">
+        <h2 class="text-lg font-semibold text-bright">Driver License Info</h2>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">License Number</label>
-            <input type="text" name="license_number" value="{{ driver_profile.license_number }}" class="w-full border rounded-lg p-2">
+            <label class="label">License Number</label>
+            <input type="text" name="license_number" value="{{ driver_profile.license_number }}" class="input">
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">License Expiry</label>
-            <input type="date" name="license_expiry" value="{{ driver_profile.license_expiry|date:'Y-m-d'|default:'' }}" class="w-full border rounded-lg p-2">
+            <label class="label">License Expiry</label>
+            <input type="date" name="license_expiry" value="{{ driver_profile.license_expiry|date:'Y-m-d'|default:'' }}" class="input">
         </div>
         {% endif %}
-        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">Update Profile</button>
+        <button type="submit" class="w-full btn-primary justify-center">Update Profile</button>
     </form>
     {% if request.user.role == 'customer' %}
     <div class="mt-6">
-        <a href="{% url 'orders:customer_documents' %}" class="block text-center bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700">Manage Documents</a>
+        <a href="{% url 'orders:customer_documents' %}" class="block text-center btn-primary justify-center">Manage Documents</a>
     </div>
     {% endif %}
 </div>

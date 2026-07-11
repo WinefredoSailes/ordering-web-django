@@ -2,32 +2,32 @@
 {% block title %}Driver Dashboard{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">My Dashboard</h1>
+    <h1 class="text-2xl font-bold text-white mb-6">My Dashboard</h1>
     <div class="grid md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
-            <p class="text-sm text-gray-500">Active Trips</p>
-            <p class="text-2xl font-bold">{{ stats.active_trips }}</p>
+        <div class="stat-card border-l-4 border-blue-500">
+            <p class="stat-label">Active Trips</p>
+            <p class="stat-value">{{ stats.active_trips }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
-            <p class="text-sm text-gray-500">Pending Deliveries</p>
-            <p class="text-2xl font-bold">{{ stats.pending }}</p>
+        <div class="stat-card border-l-4 border-yellow-500">
+            <p class="stat-label">Pending Deliveries</p>
+            <p class="stat-value">{{ stats.pending }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
-            <p class="text-sm text-gray-500">Completed</p>
-            <p class="text-2xl font-bold">{{ stats.completed }}</p>
+        <div class="stat-card border-l-4 border-green-500">
+            <p class="stat-label">Completed</p>
+            <p class="stat-value">{{ stats.completed }}</p>
         </div>
     </div>
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold mb-4">My Trips</h2>
+    <div class="card">
+        <h2 class="text-lg font-bold mb-4">My Trips</h2>
         {% if trips %}{% for trip in trips %}
-        <div class="border rounded-lg p-4 mb-3">
+        <div class="card card-hover">
             <div class="flex justify-between">
-                <div><p class="font-bold">{{ trip.trip_number }}</p><p class="text-sm text-gray-500">{{ trip.tanker.code }} - {{ trip.total_loaded_liters }}L loaded</p></div>
-                <div><span class="px-2 py-1 text-xs rounded-full {% if trip.completed_at %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">{% if trip.completed_at %}Completed{% else %}Active{% endif %}</span></div>
+                <div><p class="font-bold">{{ trip.trip_number }}</p><p class="text-sm text-muted">{{ trip.tanker.code }} - {{ trip.total_loaded_liters }}L loaded</p></div>
+                <div><span class="{% if trip.completed_at %}badge badge-green{% else %}badge badge-blue{% endif %}">{% if trip.completed_at %}Completed{% else %}Active{% endif %}</span></div>
             </div>
-            {% if not trip.completed_at %}<a href="{% url 'orders:driver_trips' %}" class="inline-block mt-3 text-blue-600 hover:underline text-sm">View orders →</a>{% endif %}
+            {% if not trip.completed_at %}<a href="{% url 'orders:driver_trips' %}" class="inline-block mt-3 link text-sm">View orders →</a>{% endif %}
         </div>
-        {% endfor %}{% else %}<p class="text-gray-500">No trips assigned.</p>{% endif %}
+        {% endfor %}{% else %}<p class="text-muted">No trips assigned.</p>{% endif %}
     </div>
 </div>
 {% endblock %}

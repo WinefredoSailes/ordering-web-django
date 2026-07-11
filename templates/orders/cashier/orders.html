@@ -2,27 +2,27 @@
 {% block title %}Orders - Cashier{% endblock %}
 {% block content %}
 <div class="max-w-6xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Payment Verifications</h1>
+    <h1 class="text-2xl font-bold text-white mb-6">Payment Verifications</h1>
     <div class="mb-4 flex flex-wrap gap-1 sm:gap-2">
-        <a href="{% url 'orders:cashier_orders' %}?status=payment_uploaded" class="px-4 py-2 rounded-lg {% if current_status == 'payment_uploaded' %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">Pending</a>
-        <a href="{% url 'orders:cashier_orders' %}?status=approved" class="px-4 py-2 rounded-lg {% if current_status == 'approved' %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">Approved</a>
-        <a href="{% url 'orders:cashier_orders' %}?status=rejected" class="px-4 py-2 rounded-lg {% if current_status == 'rejected' %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">Rejected</a>
+        <a href="{% url 'orders:cashier_orders' %}?status=payment_uploaded" class="{% if current_status == 'payment_uploaded' %}tab tab-active{% else %}tab tab-inactive{% endif %}">Pending</a>
+        <a href="{% url 'orders:cashier_orders' %}?status=approved" class="{% if current_status == 'approved' %}tab tab-active{% else %}tab tab-inactive{% endif %}">Approved</a>
+        <a href="{% url 'orders:cashier_orders' %}?status=rejected" class="{% if current_status == 'rejected' %}tab tab-active{% else %}tab tab-inactive{% endif %}">Rejected</a>
     </div>
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+    <div class="card">
+        <div class="table-wrap">
+        <table class="min-w-full">
+            <thead>
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PO#</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">PO#</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Customer</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Product</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Qty</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Action</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
                 {% include "orders/partials/cashier_orders_table.html" %}
             </tbody>
         </table>

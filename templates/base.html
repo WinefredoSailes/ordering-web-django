@@ -2,96 +2,249 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}Fuel Ordering Portal{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .htmx-request { opacity: 0.7; }
-        .htmx-indicator { display: none; }
-        .htmx-request .htmx-indicator { display: inline-block; }
+        * { scrollbar-width: thin; scrollbar-color: #1e293b transparent; }
+        *::-webkit-scrollbar { width: 4px; }
+        *::-webkit-scrollbar-track { background: transparent; }
+        *::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        body { font-family: 'Inter', sans-serif; background: #080c18; }
+
+        /* ── Design Tokens ── */
+        .bg-deep { background: #080c18; }
+        .bg-surface { background: #0f172a; }
+        .bg-card { background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%); }
+        .bg-card-hover { background: linear-gradient(135deg, #1e293b 0%, #1a2332 100%); }
+        .bg-glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); }
+        .border-glow { border-color: rgba(251, 146, 60, 0.3); }
+        .border-subtle { border-color: rgba(255, 255, 255, 0.06); }
+        .text-muted { color: #94a3b8; }
+        .text-bright { color: #f1f5f9; }
+
+        /* ── Glow Effects ── */
+        .glow-orange { box-shadow: 0 0 20px rgba(251, 146, 60, 0.15); }
+        .glow-orange-sm { box-shadow: 0 0 10px rgba(251, 146, 60, 0.1); }
+        .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+        .glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.12); }
+        .text-glow-orange { text-shadow: 0 0 20px rgba(251, 146, 60, 0.4); }
+
+        /* ── Cards ── */
+        .card {
+            background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+        .card-hover:hover {
+            border-color: rgba(251, 146, 60, 0.25);
+            box-shadow: 0 4px 24px rgba(251, 146, 60, 0.08);
+            transition: all 0.2s ease;
+        }
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        .card-body { padding: 1.25rem; }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff; font-weight: 600; font-size: 0.875rem;
+            padding: 0.5rem 1.25rem; border-radius: 10px;
+            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+            box-shadow: 0 2px 12px rgba(249, 115, 22, 0.25);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(249, 115, 22, 0.35); }
+        .btn-primary:disabled { opacity: 0.5; transform: none; }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: #e2e8f0; font-weight: 500; font-size: 0.875rem;
+            padding: 0.5rem 1.25rem; border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: #fff; font-weight: 600; font-size: 0.875rem;
+            padding: 0.5rem 1.25rem; border-radius: 10px;
+            transition: all 0.2s ease; box-shadow: 0 2px 12px rgba(220, 38, 38, 0.2);
+        }
+        .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3); }
+        .btn-sm { padding: 0.35rem 0.875rem; font-size: 0.8rem; border-radius: 8px; }
+        .btn-xs { padding: 0.25rem 0.625rem; font-size: 0.7rem; border-radius: 6px; }
+
+        /* ── Inputs ── */
+        .input {
+            width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem;
+            background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px; color: #f1f5f9; outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .input:focus { border-color: rgba(249, 115, 22, 0.5); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); }
+        .input::placeholder { color: #475569; }
+        .input:disabled { opacity: 0.5; }
+        .label { display: block; font-size: 0.75rem; font-weight: 500; color: #94a3b8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        select.input { cursor: pointer; }
+        textarea.input { resize: vertical; min-height: 80px; }
+
+        /* ── Tables ── */
+        .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.06); }
+        .table-wrap table { width: 100%; border-collapse: collapse; }
+        .table-wrap th {
+            padding: 0.75rem 1rem; text-align: left; font-size: 0.7rem; font-weight: 600;
+            color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;
+            background: rgba(15, 23, 42, 0.6); border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            white-space: nowrap;
+        }
+        .table-wrap td {
+            padding: 0.75rem 1rem; font-size: 0.85rem; color: #e2e8f0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .table-wrap tr:hover td { background: rgba(255, 255, 255, 0.03); }
+        .table-wrap tr:last-child td { border-bottom: none; }
+
+        /* ── Badges ── */
+        .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.625rem; font-size: 0.7rem; font-weight: 600; border-radius: 999px; white-space: nowrap; }
+        .badge-yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+        .badge-green { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .badge-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .badge-indigo { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+        .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .badge-orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+        .badge-gray { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+
+        /* ── Status Dots ── */
+        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .status-dot.green { background: #4ade80; box-shadow: 0 0 6px rgba(74, 222, 128, 0.5); }
+        .status-dot.yellow { background: #facc15; box-shadow: 0 0 6px rgba(250, 204, 21, 0.5); }
+        .status-dot.purple { background: #c084fc; box-shadow: 0 0 6px rgba(192, 132, 252, 0.5); }
+        .status-dot.indigo { background: #a5b4fc; box-shadow: 0 0 6px rgba(165, 180, 252, 0.5); }
+        .status-dot.red { background: #f87171; box-shadow: 0 0 6px rgba(248, 113, 113, 0.5); }
+
+        /* ── Stat Cards ── */
+        .stat-card {
+            background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px; padding: 1.25rem;
+            transition: all 0.2s ease;
+        }
+        .stat-card:hover { border-color: rgba(251, 146, 60, 0.2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        .stat-value { font-size: 1.75rem; font-weight: 800; color: #f1f5f9; line-height: 1.2; }
+        .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+
+        /* ── Utility ── */
+        .link { color: #60a5fa; transition: color 0.15s ease; }
+        .link:hover { color: #93c5fd; text-decoration: underline; }
+        .divider { height: 1px; background: rgba(255, 255, 255, 0.06); margin: 1rem 0; }
+        .filter-bar {
+            display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem;
+            background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px; padding: 1rem;
+        }
+        .tab { padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 500; transition: all 0.15s ease; white-space: nowrap; }
+        .tab-active { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+        .tab-inactive { background: rgba(255, 255, 255, 0.05); color: #64748b; }
+        .tab-inactive:hover { background: rgba(255, 255, 255, 0.1); color: #94a3b8; }
+
+        /* ── Sidebar Nav ── */
+        .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.55rem 0.75rem; border-radius: 10px; font-size: 0.875rem; color: #94a3b8; transition: all 0.15s ease; }
+        .nav-link:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+        .nav-link.active { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+
+        /* ── Mobile Responsive ── */
+        .stack-sm { display: flex; flex-direction: column; gap: 0.75rem; }
+        @media (min-width: 640px) { .stack-sm { flex-direction: row; align-items: center; } }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-deep min-h-screen text-slate-200">
     {% if request.user.is_authenticated %}
     <div x-data="{ open: false, collapsed: false }" class="flex h-screen overflow-hidden">
         <!-- Mobile overlay -->
-        <div x-show="open" @click="open = false" class="fixed inset-0 bg-black/50 z-20 sm:hidden"></div>
+        <div x-show="open" @click="open = false" class="fixed inset-0 bg-black/70 z-20 sm:hidden"></div>
 
         <!-- Sidebar -->
-        <aside class="fixed inset-y-0 left-0 z-30 bg-blue-900 text-white transform transition-all duration-200 ease-in-out sm:translate-x-0 sm:static sm:z-auto -translate-x-full"
+        <aside class="fixed inset-y-0 left-0 z-30 bg-glass border-r border-subtle text-white transform transition-all duration-300 ease-in-out sm:translate-x-0 sm:static sm:z-auto -translate-x-full"
                :class="{ '-translate-x-full': !open, 'translate-x-0': open, 'w-16': collapsed, 'w-64': !collapsed }">
             <div class="flex flex-col h-full">
                 <!-- Brand -->
-                <div class="flex items-center h-14 border-b border-blue-800 px-3"
+                <div class="flex items-center h-14 border-b border-subtle px-3"
                      :class="{ 'justify-center': collapsed, 'justify-between': !collapsed }">
-                    <a href="/" class="font-bold whitespace-nowrap" :class="{ 'text-lg': !collapsed, 'text-xl': collapsed }" x-show="!collapsed">⛽ Fuel Portal</a>
-                    <a href="/" x-show="collapsed" class="text-xl">⛽</a>
+                    <a href="/" class="font-extrabold whitespace-nowrap" :class="{ 'text-lg': !collapsed, 'text-xl': collapsed }" x-show="!collapsed"><span class="text-orange-400">⟡</span> Fuel<span class="text-orange-400">Portal</span></a>
+                    <a href="/" x-show="collapsed" class="text-xl text-orange-400">⟡</a>
                     <div class="flex items-center gap-1">
-                        <button @click="collapsed = !collapsed" class="hidden sm:flex p-1.5 rounded-lg hover:bg-blue-800 transition-colors" title="Toggle sidebar">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        <button @click="collapsed = !collapsed" class="hidden sm:flex p-1.5 rounded-lg hover:bg-white/10 transition-colors" title="Toggle sidebar">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                  :class="{ 'rotate-180': collapsed }">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
                         </button>
-                        <button @click="open = false" class="sm:hidden p-1 rounded hover:bg-blue-800">
+                        <button @click="open = false" class="sm:hidden p-1 rounded hover:bg-white/10">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
                 </div>
 
                 <!-- Nav links -->
-                <nav class="flex-1 overflow-y-auto px-2 py-4 space-y-1 text-sm">
+                <nav class="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
                     {% if request.user.role == 'customer' %}
-                    <a href="{% url 'orders:products' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📦</span><span x-show="!collapsed">Products</span></a>
-                    <a href="{% url 'orders:my_orders' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📋</span><span x-show="!collapsed">My Orders</span></a>
-                    <a href="{% url 'orders:customer_messages' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>💬</span><span x-show="!collapsed">Messages</span></a>
-                    <a href="{% url 'orders:customer_dashboard' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
-                    <a href="{% url 'orders:customer_documents' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📄</span><span x-show="!collapsed">My Docs</span></a>
-                    <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
+                    <a href="{% url 'orders:products' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📦</span><span x-show="!collapsed">Products</span></a>
+                    <a href="{% url 'orders:my_orders' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📋</span><span x-show="!collapsed">My Orders</span></a>
+                    <a href="{% url 'orders:customer_messages' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>💬</span><span x-show="!collapsed">Messages</span></a>
+                    <a href="{% url 'orders:customer_dashboard' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
+                    <a href="{% url 'orders:customer_documents' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📄</span><span x-show="!collapsed">My Docs</span></a>
+                    <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
                     {% elif request.user.role == 'cashier' %}
-                    <a href="{% url 'orders:cashier_dashboard' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
-                    <a href="{% url 'orders:cashier_payments' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>💳</span><span x-show="!collapsed">Payments</span></a>
-                    <a href="{% url 'orders:earned_revenue' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>✅</span><span x-show="!collapsed">Earned</span></a>
-                    <a href="{% url 'orders:unearned_revenue' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>⏳</span><span x-show="!collapsed">Unearned</span></a>
-                    <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
+                    <a href="{% url 'orders:cashier_dashboard' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
+                    <a href="{% url 'orders:cashier_payments' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>💳</span><span x-show="!collapsed">Payments</span></a>
+                    <a href="{% url 'orders:earned_revenue' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>✅</span><span x-show="!collapsed">Earned</span></a>
+                    <a href="{% url 'orders:unearned_revenue' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>⏳</span><span x-show="!collapsed">Unearned</span></a>
+                    <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
                     {% elif request.user.role == 'hauling' %}
-                    <a href="{% url 'orders:hauling_dashboard' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
-                    <a href="{% url 'orders:hauling_ops_chat' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>💬</span><span x-show="!collapsed">Ops</span></a>
-                    <a href="{% url 'orders:hauling_orders' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📋</span><span x-show="!collapsed">Orders</span></a>
-                    <a href="{% url 'orders:create_trip' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>🚛</span><span x-show="!collapsed">Dispatch</span></a>
-                    <a href="{% url 'orders:hauling_trips' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>🗺️</span><span x-show="!collapsed">Trips</span></a>
-                    <a href="{% url 'orders:tanker_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>⛽</span><span x-show="!collapsed">Tankers</span></a>
-                    <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
+                    <a href="{% url 'orders:hauling_dashboard' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
+                    <a href="{% url 'orders:hauling_ops_chat' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>💬</span><span x-show="!collapsed">Ops</span></a>
+                    <a href="{% url 'orders:hauling_orders' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📋</span><span x-show="!collapsed">Orders</span></a>
+                    <a href="{% url 'orders:create_trip' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🚛</span><span x-show="!collapsed">Dispatch</span></a>
+                    <a href="{% url 'orders:hauling_trips' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🗺️</span><span x-show="!collapsed">Trips</span></a>
+                    <a href="{% url 'orders:tanker_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>⛽</span><span x-show="!collapsed">Tankers</span></a>
+                    <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
                     {% elif request.user.role == 'driver' %}
-                    <a href="{% url 'orders:driver_trips' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>🗺️</span><span x-show="!collapsed">My Trips</span></a>
-                    <a href="{% url 'orders:driver_dashboard' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
-                    <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
+                    <a href="{% url 'orders:driver_trips' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🗺️</span><span x-show="!collapsed">My Trips</span></a>
+                    <a href="{% url 'orders:driver_dashboard' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
+                    <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
                     {% elif request.user.role == 'superadmin' %}
-                    <a href="{% url 'orders:superadmin_dashboard' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
-                    <a href="{% url 'orders:admin_orders' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📋</span><span x-show="!collapsed">Orders</span></a>
-                    <a href="{% url 'orders:group_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>👥</span><span x-show="!collapsed">Groups</span></a>
-                    <a href="{% url 'orders:pricing_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>💰</span><span x-show="!collapsed">Pricing</span></a>
-                    <a href="{% url 'orders:product_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📦</span><span x-show="!collapsed">Products</span></a>
-                    <a href="{% url 'orders:tanker_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>⛽</span><span x-show="!collapsed">Tankers</span></a>
-                    <a href="{% url 'orders:driver_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>🚛</span><span x-show="!collapsed">Drivers</span></a>
-                    <a href="{% url 'accounts:user_list' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Users</span></a>
-                    <a href="{% url 'orders:audit_logs' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>📜</span><span x-show="!collapsed">Logs</span></a>
-                    <a href="{% url 'orders:earned_revenue' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>✅</span><span x-show="!collapsed">Earned</span></a>
-                    <a href="{% url 'orders:unearned_revenue' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>⏳</span><span x-show="!collapsed">Unearned</span></a>
-                    <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 justify-center sm:justify-start" :class="{ 'sm:justify-center': collapsed, 'sm:justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
+                    <a href="{% url 'orders:superadmin_dashboard' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📊</span><span x-show="!collapsed">Dashboard</span></a>
+                    <a href="{% url 'orders:admin_orders' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📋</span><span x-show="!collapsed">Orders</span></a>
+                    <a href="{% url 'orders:group_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👥</span><span x-show="!collapsed">Groups</span></a>
+                    <a href="{% url 'orders:pricing_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>💰</span><span x-show="!collapsed">Pricing</span></a>
+                    <a href="{% url 'orders:product_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📦</span><span x-show="!collapsed">Products</span></a>
+                    <a href="{% url 'orders:tanker_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>⛽</span><span x-show="!collapsed">Tankers</span></a>
+                    <a href="{% url 'orders:driver_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>🚛</span><span x-show="!collapsed">Drivers</span></a>
+                    <a href="{% url 'accounts:user_list' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Users</span></a>
+                    <a href="{% url 'orders:audit_logs' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>📜</span><span x-show="!collapsed">Logs</span></a>
+                    <a href="{% url 'orders:earned_revenue' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>✅</span><span x-show="!collapsed">Earned</span></a>
+                    <a href="{% url 'orders:unearned_revenue' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>⏳</span><span x-show="!collapsed">Unearned</span></a>
+                    <a href="{% url 'accounts:profile' %}" class="nav-link" :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }"><span>👤</span><span x-show="!collapsed">Profile</span></a>
                     {% endif %}
                 </nav>
 
                 <!-- User info + logout -->
-                <div class="border-t border-blue-800 px-2 py-3 space-y-2">
+                <div class="border-t border-subtle px-2 py-3 space-y-1">
                     <div x-show="!collapsed" class="px-3">
-                        <p class="text-xs text-blue-200 truncate">{{ request.user.username }}</p>
-                        <p class="text-xs text-blue-300 mb-1">{{ request.user.get_role_display }}</p>
+                        <p class="text-xs text-slate-400 truncate">{{ request.user.username }}</p>
+                        <p class="text-xs text-orange-400/70 mb-1">{{ request.user.get_role_display }}</p>
                     </div>
-                    <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-800 text-sm text-red-300 hover:text-red-200"
+                    <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-sm text-red-400 hover:text-red-300"
                        :class="{ 'justify-center': collapsed, 'justify-start': !collapsed }">
                         <span>🚪</span><span x-show="!collapsed">Logout</span>
                     </a>
@@ -100,21 +253,25 @@
         </aside>
 
         <!-- Main area -->
-        <div class="flex-1 flex flex-col min-h-screen">
+        <div class="flex-1 flex flex-col min-h-screen min-w-0">
             <!-- Top bar (mobile hamburger + header) -->
-            <header class="bg-white shadow-sm h-14 flex items-center px-4 sm:px-6 lg:px-8">
-                <button @click="open = !open" class="sm:hidden p-2 mr-2 rounded-md hover:bg-gray-100" aria-label="Toggle menu">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <header class="bg-glass border-b border-subtle h-14 flex items-center px-3 sm:px-5 lg:px-6 flex-shrink-0">
+                <button @click="open = !open" class="sm:hidden p-2 mr-2 rounded-lg hover:bg-white/10" aria-label="Toggle menu">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
-                <h1 class="text-lg font-semibold text-gray-800">{% block heading %}Fuel Portal{% endblock %}</h1>
+                <h1 class="text-base sm:text-lg font-semibold text-slate-100 truncate">{% block heading %}Fuel Portal{% endblock %}</h1>
             </header>
 
             <!-- Messages + content -->
-            <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
+            <main class="flex-1 overflow-y-auto px-3 sm:px-5 lg:px-6 py-4 sm:py-6">
                 {% if messages and not hide_messages %}
-                <div class="mb-6">
+                <div class="mb-4 space-y-2">
                     {% for message in messages %}
-                    <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-100 text-red-800 border border-red-200{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800 border border-yellow-200{% else %}bg-blue-100 text-blue-800 border border-blue-200{% endif %} mb-2">
+                    <div class="px-4 py-3 rounded-xl text-sm font-medium border
+                        {% if message.tags == 'success' %}bg-emerald-900/40 text-emerald-300 border-emerald-700/30
+                        {% elif message.tags == 'error' %}bg-red-900/40 text-red-300 border-red-700/30
+                        {% elif message.tags == 'warning' %}bg-amber-900/40 text-amber-300 border-amber-700/30
+                        {% else %}bg-blue-900/40 text-blue-300 border-blue-700/30{% endif %}">
                         {{ message }}
                     </div>
                     {% endfor %}
@@ -126,7 +283,7 @@
     </div>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     {% else %}
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <main class="min-h-screen bg-deep">
         {% block content_anon %}{% endblock %}
     </main>
     {% endif %}

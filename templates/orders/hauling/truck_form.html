@@ -2,34 +2,34 @@
 {% block title %}{% if truck %}Edit{% else %}Add{% endif %} Truck{% endblock %}
 {% block content %}
 <div class="max-w-lg mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">{% if truck %}Edit{% else %}Add{% endif %} Truck</h1>
-    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+    <h1 class="text-2xl font-bold text-white mb-6">{% if truck %}Edit{% else %}Add{% endif %} Truck</h1>
+    <form method="post" class="card p-6 space-y-4">
         {% csrf_token %}
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Truck Number</label>
-            <input type="text" name="truck_number" value="{{ truck.truck_number|default:'' }}" required class="w-full border rounded-lg p-2">
+            <label class="label">Truck Number</label>
+            <input type="text" name="truck_number" value="{{ truck.truck_number|default:'' }}" required class="input w-full">
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Plate Number</label>
-            <input type="text" name="plate_number" value="{{ truck.plate_number|default:'' }}" required class="w-full border rounded-lg p-2">
+            <label class="label">Plate Number</label>
+            <input type="text" name="plate_number" value="{{ truck.plate_number|default:'' }}" required class="input w-full">
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Total Capacity (Liters)</label>
-            <input type="number" name="total_capacity_liters" value="{{ truck.total_capacity_liters|default:'10000' }}" required min="1" class="w-full border rounded-lg p-2">
+            <label class="label">Total Capacity (Liters)</label>
+            <input type="number" name="total_capacity_liters" value="{{ truck.total_capacity_liters|default:'10000' }}" required min="1" class="input w-full">
         </div>
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Number of Compartments</label>
-            <input type="number" name="compartments_count" value="{{ truck.compartments_count|default:'6' }}" required min="1" class="w-full border rounded-lg p-2">
+            <label class="label">Number of Compartments</label>
+            <input type="number" name="compartments_count" value="{{ truck.compartments_count|default:'6' }}" required min="1" class="input w-full">
         </div>
         {% if truck %}
         <div>
             <label class="flex items-center">
                 <input type="checkbox" name="is_active" {% if truck.is_active %}checked{% endif %} class="mr-2">
-                <span class="text-sm font-medium text-gray-700">Active</span>
+                <span class="label">Active</span>
             </label>
         </div>
         {% endif %}
-        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">{% if truck %}Update{% else %}Create{% endif %} Truck</button>
+        <button type="submit" class="btn-primary w-full">{% if truck %}Update{% else %}Create{% endif %} Truck</button>
     </form>
 </div>
 {% endblock %}

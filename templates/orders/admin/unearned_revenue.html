@@ -3,90 +3,102 @@
 {% block title %}Unearned Revenue{% endblock %}
 {% block content %}
 <div class="max-w-6xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-2">Unearned Revenue</h1>
-    <p class="text-sm text-gray-500 mb-6">Collections confirmed (approved payments) but orders not yet delivered.</p>
+    <h1 class="text-2xl font-bold text-white mb-2">Unearned Revenue</h1>
+    <p class="text-sm text-muted mb-6">Collections confirmed (approved payments) but orders not yet delivered.</p>
 
-    <form method="get" class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap items-end gap-4">
+    <form method="get" class="filter-bar mb-6">
         <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
-            <input type="date" name="date_from" value="{{ filters.date_from }}" class="border rounded-lg p-2 text-sm">
+            <label class="label">From</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}" class="input">
         </div>
         <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
-            <input type="date" name="date_to" value="{{ filters.date_to }}" class="border rounded-lg p-2 text-sm">
+            <label class="label">To</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}" class="input">
         </div>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">Filter</button>
-        {% if filters.date_from or filters.date_to %}<a href="{% url 'orders:unearned_revenue' %}" class="text-gray-600 hover:text-gray-800 text-sm py-2">Clear</a>{% endif %}
+        <button type="submit" class="btn-primary">Filter</button>
+        {% if filters.date_from or filters.date_to %}<a href="{% url 'orders:unearned_revenue' %}" class="link py-2">Clear</a>{% endif %}
     </form>
 
     <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
-            <p class="text-xs text-gray-500">Unearned Revenue</p>
-            <p class="text-2xl font-bold text-yellow-700">₱{{ total_unearned|floatformat:2|intcomma }}</p>
+        <div class="stat-card">
+            <p class="stat-label">Unearned Revenue</p>
+            <p class="stat-value">₱{{ total_unearned|floatformat:2|intcomma }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
-            <p class="text-xs text-gray-500">Paid & Undelivered Orders</p>
-            <p class="text-2xl font-bold text-purple-700">{{ order_count }}</p>
+        <div class="stat-card">
+            <p class="stat-label">Paid & Undelivered Orders</p>
+            <p class="stat-value">{{ order_count }}</p>
         </div>
     </div>
 
     <div class="grid md:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white rounded-lg shadow p-4">
-            <h2 class="text-lg font-semibold mb-3">By Product</h2>
+        <div class="card">
+            <div class="card-header">By Product</div>
+            <div class="card-body">
             {% if by_product %}
-            <table class="min-w-full text-sm">
-                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Orders</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Amount</th></tr></thead>
-                <tbody class="divide-y">
+            <div class="table-wrap">
+            <table>
+                <thead><tr><th>Product</th><th class="text-right">Orders</th><th class="text-right">Amount</th></tr></thead>
+                <tbody>
                     {% for s in by_product %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-3 py-2 font-medium">{{ s.product__shortcut }}</td>
-                        <td class="px-3 py-2 text-right">{{ s.count }}</td>
-                        <td class="px-3 py-2 text-right font-medium">₱{{ s.total|floatformat:2|intcomma }}</td>
+                    <tr>
+                        <td class="font-medium">{{ s.product__shortcut }}</td>
+                        <td class="text-right">{{ s.count }}</td>
+                        <td class="text-right font-medium">₱{{ s.total|floatformat:2|intcomma }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            {% else %}<p class="text-gray-500 text-sm">No unearned revenue.</p>{% endif %}
+            </div>
+            {% else %}<p class="text-muted text-sm">No unearned revenue.</p>{% endif %}
+            </div>
         </div>
-        <div class="bg-white rounded-lg shadow p-4">
-            <h2 class="text-lg font-semibold mb-3">Top Customers</h2>
+        <div class="card">
+            <div class="card-header">Top Customers</div>
+            <div class="card-body">
             {% if by_customer %}
-            <table class="min-w-full text-sm">
-                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Customer</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Orders</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Amount</th></tr></thead>
-                <tbody class="divide-y">
+            <div class="table-wrap">
+            <table>
+                <thead><tr><th>Customer</th><th class="text-right">Orders</th><th class="text-right">Amount</th></tr></thead>
+                <tbody>
                     {% for s in by_customer %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-3 py-2">{{ s.customer__business_name|default:s.customer__username }}</td>
-                        <td class="px-3 py-2 text-right">{{ s.count }}</td>
-                        <td class="px-3 py-2 text-right font-medium">₱{{ s.total|floatformat:2|intcomma }}</td>
+                    <tr>
+                        <td>{{ s.customer__business_name|default:s.customer__username }}</td>
+                        <td class="text-right">{{ s.count }}</td>
+                        <td class="text-right font-medium">₱{{ s.total|floatformat:2|intcomma }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            {% else %}<p class="text-gray-500 text-sm">No unearned revenue.</p>{% endif %}
+            </div>
+            {% else %}<p class="text-muted text-sm">No unearned revenue.</p>{% endif %}
+            </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-4">
-        <h2 class="text-lg font-semibold mb-3">Paid but Undelivered Orders</h2>
+    <div class="card">
+        <div class="card-header">Paid but Undelivered Orders</div>
+        <div class="card-body">
         {% if recent %}
-        <table class="min-w-full text-sm">
-            <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">PO#</th><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">AR#</th><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Customer</th><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Product</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Qty</th><th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Amount</th><th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th></tr></thead>
-            <tbody class="divide-y">
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>PO#</th><th>AR#</th><th>Customer</th><th>Product</th><th class="text-right">Qty</th><th class="text-right">Amount</th><th>Status</th></tr></thead>
+            <tbody>
                 {% for o in recent %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-3 py-2 font-mono text-xs">{{ o.po_number }}</td>
-                    <td class="px-3 py-2 font-mono text-xs">{{ o.payments.all.0.acknowledgement_receipt|default:'-' }}</td>
-                    <td class="px-3 py-2">{{ o.customer.username }}</td>
-                    <td class="px-3 py-2">{{ o.product.shortcut }}</td>
-                    <td class="px-3 py-2 text-right">{{ o.quantity_liters }}L</td>
-                    <td class="px-3 py-2 text-right font-medium">₱{{ o.total_amount|floatformat:2|intcomma }}</td>
-                    <td class="px-3 py-2">{{ o.get_status_display }}</td>
+                <tr>
+                    <td class="font-mono text-xs">{{ o.po_number }}</td>
+                    <td class="font-mono text-xs">{{ o.payments.all.0.acknowledgement_receipt|default:'-' }}</td>
+                    <td>{{ o.customer.username }}</td>
+                    <td>{{ o.product.shortcut }}</td>
+                    <td class="text-right">{{ o.quantity_liters }}L</td>
+                    <td class="text-right font-medium">₱{{ o.total_amount|floatformat:2|intcomma }}</td>
+                    <td>{{ o.get_status_display }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        {% else %}<p class="text-gray-500 text-sm">All paid orders have been delivered.</p>{% endif %}
+        </div>
+        {% else %}<p class="text-muted text-sm">All paid orders have been delivered.</p>{% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

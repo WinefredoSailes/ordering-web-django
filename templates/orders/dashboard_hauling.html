@@ -2,48 +2,50 @@
 {% block title %}Hauling Dashboard{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Hauling Dashboard</h1>
+    <h1 class="text-2xl font-bold text-white mb-6">Hauling Dashboard</h1>
     <div class="grid md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
-            <p class="text-sm text-gray-500">Ready to Dispatch</p>
-            <p class="text-2xl font-bold">{{ stats.ready }}</p>
+        <div class="stat-card border-l-4 border-green-500">
+            <p class="stat-label">Ready to Dispatch</p>
+            <p class="stat-value">{{ stats.ready }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
-            <p class="text-sm text-gray-500">Dispatched</p>
-            <p class="text-2xl font-bold">{{ stats.dispatched }}</p>
+        <div class="stat-card border-l-4 border-purple-500">
+            <p class="stat-label">Dispatched</p>
+            <p class="stat-value">{{ stats.dispatched }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-indigo-500">
-            <p class="text-sm text-gray-500">In Transit</p>
-            <p class="text-2xl font-bold">{{ stats.in_transit }}</p>
+        <div class="stat-card border-l-4 border-indigo-500">
+            <p class="stat-label">In Transit</p>
+            <p class="stat-value">{{ stats.in_transit }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-600">
-            <p class="text-sm text-gray-500">Delivered</p>
-            <p class="text-2xl font-bold">{{ stats.delivered }}</p>
+        <div class="stat-card border-l-4 border-green-600">
+            <p class="stat-label">Delivered</p>
+            <p class="stat-value">{{ stats.delivered }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
-            <p class="text-sm text-gray-500">Active Tankers</p>
-            <p class="text-2xl font-bold">{{ stats.tankers }}</p>
+        <div class="stat-card border-l-4 border-blue-500">
+            <p class="stat-label">Active Tankers</p>
+            <p class="stat-value">{{ stats.tankers }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-l-4 border-gray-500">
-            <p class="text-sm text-gray-500">Available Drivers</p>
-            <p class="text-2xl font-bold">{{ stats.available_drivers }}</p>
+        <div class="stat-card border-l-4 border-gray-500">
+            <p class="stat-label">Available Drivers</p>
+            <p class="stat-value">{{ stats.available_drivers }}</p>
         </div>
     </div>
     <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Orders Ready to Dispatch</h2>
+        <div class="card">
+            <div class="card-header">Orders Ready to Dispatch</div>
+            <div class="card-body">
             {% if orders %}{% for order in orders %}
-            <div class="flex justify-between items-center py-2 border-b">
-                <div><p class="font-medium">{{ order.po_number }}</p><p class="text-sm text-gray-500">{{ order.customer.username }} - {{ order.product.shortcut }} {{ order.quantity_liters }}L</p></div>
-                <a href="{% url 'orders:create_trip' %}" class="text-blue-600 hover:underline text-sm">Dispatch</a>
-            </div>{% endfor %}{% else %}<p class="text-gray-500">No orders ready.</p>{% endif %}
+            <div class="flex justify-between items-center py-2 border-b border-subtle">
+                <div><p class="font-medium">{{ order.po_number }}</p><p class="text-sm text-muted">{{ order.customer.username }} - {{ order.product.shortcut }} {{ order.quantity_liters }}L</p></div>
+                <a href="{% url 'orders:create_trip' %}" class="link text-sm">Dispatch</a>
+            </div>{% endfor %}{% else %}<p class="text-muted">No orders ready.</p>{% endif %}
+            </div>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
-            <div class="space-y-3">
-                <a href="{% url 'orders:create_trip' %}" class="block bg-blue-600 text-white text-center px-4 py-3 rounded-lg hover:bg-blue-700">Create Dispatch Trip</a>
-                <a href="{% url 'orders:hauling_trips' %}" class="block bg-purple-600 text-white text-center px-4 py-3 rounded-lg hover:bg-purple-700">View All Trips</a>
-                <a href="{% url 'orders:tanker_list' %}" class="block bg-green-600 text-white text-center px-4 py-3 rounded-lg hover:bg-green-700">Manage Tankers</a>
+        <div class="card">
+            <div class="card-header">Quick Actions</div>
+            <div class="card-body space-y-3">
+                <a href="{% url 'orders:create_trip' %}" class="btn-primary w-full justify-center">Create Dispatch Trip</a>
+                <a href="{% url 'orders:hauling_trips' %}" class="btn-primary w-full justify-center">View All Trips</a>
+                <a href="{% url 'orders:tanker_list' %}" class="btn-primary w-full justify-center">Manage Tankers</a>
             </div>
         </div>
     </div>

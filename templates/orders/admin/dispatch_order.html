@@ -5,32 +5,32 @@
 {% block content %}
 <div class="max-w-3xl mx-auto">
     <div class="mb-6">
-        <a href="{% url 'orders:admin_orders' %}" class="text-blue-600 hover:underline">← Back</a>
+        <a href="{% url 'orders:admin_orders' %}" class="link">← Back</a>
     </div>
     
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h1 class="text-2xl font-bold mb-6">Dispatch Order</h1>
+    <div class="card p-6">
+        <h1 class="text-2xl font-bold text-white mb-6">Dispatch Order</h1>
         
         <div class="grid md:grid-cols-2 gap-4 mb-6">
             <div>
-                <p class="text-sm text-gray-500">PO Number</p>
-                <p class="text-lg font-semibold">{{ order.po_number }}</p>
+                <p class="text-muted">PO Number</p>
+                <p class="text-lg font-semibold text-bright">{{ order.po_number }}</p>
             </div>
             <div>
-                <p class="text-sm text-gray-500">Product</p>
-                <p class="text-lg font-semibold">{{ order.product.name }}</p>
+                <p class="text-muted">Product</p>
+                <p class="text-lg font-semibold text-bright">{{ order.product.name }}</p>
             </div>
             <div>
-                <p class="text-sm text-gray-500">Quantity</p>
-                <p class="text-lg font-semibold">{{ order.quantity_liters }} Liters</p>
+                <p class="text-muted">Quantity</p>
+                <p class="text-lg font-semibold text-bright">{{ order.quantity_liters }} Liters</p>
             </div>
         </div>
         
         <form method="post" class="space-y-4">
             {% csrf_token %}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Select Truck</label>
-                <select name="truck" id="truckSelect" required class="w-full border rounded-lg p-2">
+                <label class="label">Select Truck</label>
+                <select name="truck" id="truckSelect" required class="input w-full">
                     <option value="">-- Select Truck --</option>
                     {% for truck in trucks %}
                     <option value="{{ truck.id }}">{{ truck.truck_number }} - {{ truck.plate_number }} ({{ truck.total_capacity_liters }}L, {{ truck.compartments_count }} comp)</option>
@@ -39,15 +39,15 @@
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Select Compartment</label>
-                <select name="compartment" id="compartmentSelect" required class="w-full border rounded-lg p-2">
+                <label class="label">Select Compartment</label>
+                <select name="compartment" id="compartmentSelect" required class="input w-full">
                     <option value="">-- Select Compartment --</option>
                 </select>
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Select Driver</label>
-                <select name="driver" required class="w-full border rounded-lg p-2">
+                <label class="label">Select Driver</label>
+                <select name="driver" required class="input w-full">
                     <option value="">-- Select Driver --</option>
                     {% for driver in drivers %}
                     <option value="{{ driver.id }}">{{ driver.username }}</option>
@@ -55,7 +55,7 @@
                 </select>
             </div>
             
-            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg" onclick="return confirm('Dispatch {{ order.po_number }}? This will assign a driver and truck.')">
+            <button type="submit" class="btn-primary w-full" onclick="return confirm('Dispatch {{ order.po_number }}? This will assign a driver and truck.')">
                 Dispatch Order
             </button>
         </form>

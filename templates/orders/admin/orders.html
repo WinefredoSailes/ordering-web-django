@@ -4,57 +4,57 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Orders Management</h1>
+    <h1 class="text-2xl font-bold text-white mb-6">Orders Management</h1>
     
     <div class="flex flex-wrap gap-1 sm:gap-2 mb-6">
-        <a href="{% url 'orders:admin_orders' %}" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">All</a>
-        <a href="?status=pending" class="px-4 py-2 rounded-lg bg-yellow-100 hover:bg-yellow-200 text-yellow-800">Pending</a>
-        <a href="?status=paid" class="px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-800">Paid</a>
-        <a href="?status=dispatched" class="px-4 py-2 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800">Dispatched</a>
-        <a href="?status=delivered" class="px-4 py-2 rounded-lg bg-green-100 hover:bg-green-200 text-green-800">Delivered</a>
+        <a href="{% url 'orders:admin_orders' %}" class="tab tab-inactive">All</a>
+        <a href="?status=pending" class="tab tab-inactive">Pending</a>
+        <a href="?status=paid" class="tab tab-inactive">Paid</a>
+        <a href="?status=dispatched" class="tab tab-inactive">Dispatched</a>
+        <a href="?status=delivered" class="tab tab-inactive">Delivered</a>
     </div>
     
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+    <div class="card">
+        <div class="table-wrap">
+        <table>
+            <thead>
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">PO Number</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    <th>PO Number</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody>
                 {% if orders %}
                 {% for order in orders %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ order.po_number }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.customer.username }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.product.name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.quantity_liters }} L</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif order.status == 'paid' %}bg-blue-100 text-blue-800{% elif order.status == 'dispatched' %}bg-purple-100 text-purple-800{% elif order.status == 'delivered' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                <tr>
+                    <td>{{ order.po_number }}</td>
+                    <td class="text-muted">{{ order.customer.username }}</td>
+                    <td class="text-muted">{{ order.product.name }}</td>
+                    <td class="text-muted">{{ order.quantity_liters }} L</td>
+                    <td>
+                        <span class="badge {% if order.status == 'pending' %}badge-yellow{% elif order.status == 'paid' %}badge-blue{% elif order.status == 'dispatched' %}badge-purple{% elif order.status == 'delivered' %}badge-green{% else %}badge-gray{% endif %}">
                             {{ order.get_status_display }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.created_at|date:"M d, Y" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <a href="{% url 'orders:order_detail' order.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                    <td class="text-muted">{{ order.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'orders:order_detail' order.pk %}" class="link mr-3">View</a>
                         {% if order.status == 'pending' and order.payment_proof %}
-                        <a href="{% url 'orders:verify_payment' order.pk %}" class="text-green-600 hover:text-green-900" onclick="return confirm('Proceed to verify payment for {{ order.po_number }}?')">Verify</a>
+                        <a href="{% url 'orders:verify_payment' order.pk %}" class="link" onclick="return confirm('Proceed to verify payment for {{ order.po_number }}?')">Verify</a>
                         {% elif order.status == 'paid' %}
-                        <a href="{% url 'orders:dispatch_order' order.pk %}" class="text-purple-600 hover:text-purple-900" onclick="return confirm('Dispatch {{ order.po_number }}? This will assign it to a driver.')">Dispatch</a>
+                        <a href="{% url 'orders:dispatch_order' order.pk %}" class="link" onclick="return confirm('Dispatch {{ order.po_number }}? This will assign it to a driver.')">Dispatch</a>
                         {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">No orders found</td>
+                    <td colspan="7" class="text-muted text-center py-8">No orders found</td>
                 </tr>
                 {% endif %}
             </tbody>

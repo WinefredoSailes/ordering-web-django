@@ -2,12 +2,12 @@
 {% block title %}Audit Logs{% endblock %}
 {% block content %}
 <div class="max-w-6xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Audit Logs</h1>
+    <h1 class="text-2xl font-bold text-white mb-6">Audit Logs</h1>
 
-    <form method="get" class="flex flex-wrap gap-2 mb-4 items-end">
+    <form method="get" class="filter-bar mb-6">
         <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Action</label>
-            <select name="action" class="border rounded-lg p-2 text-sm" onchange="this.form.submit()">
+            <label class="label">Action</label>
+            <select name="action" class="input" onchange="this.form.submit()">
                 <option value="">All</option>
                 {% for a in actions %}
                 <option value="{{ a }}" {% if filters.action == a %}selected{% endif %}>{{ a }}</option>
@@ -15,8 +15,8 @@
             </select>
         </div>
         <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">Model</label>
-            <select name="model" class="border rounded-lg p-2 text-sm" onchange="this.form.submit()">
+            <label class="label">Model</label>
+            <select name="model" class="input" onchange="this.form.submit()">
                 <option value="">All</option>
                 {% for m in models %}
                 <option value="{{ m }}" {% if filters.model == m %}selected{% endif %}>{{ m }}</option>
@@ -24,8 +24,8 @@
             </select>
         </div>
         <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">User</label>
-            <select name="user" class="border rounded-lg p-2 text-sm" onchange="this.form.submit()">
+            <label class="label">User</label>
+            <select name="user" class="input" onchange="this.form.submit()">
                 <option value="">All</option>
                 {% for u in users %}
                 <option value="{{ u.id }}" {% if filters.user == u.id|slugify %}selected{% endif %}>{{ u.username }}</option>
@@ -33,44 +33,44 @@
             </select>
         </div>
         <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">From</label>
-            <input type="date" name="date_from" value="{{ filters.date_from }}" class="border rounded-lg p-2 text-sm">
+            <label class="label">From</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}" class="input">
         </div>
         <div>
-            <label class="block text-xs font-medium text-gray-500 mb-1">To</label>
-            <input type="date" name="date_to" value="{{ filters.date_to }}" class="border rounded-lg p-2 text-sm">
+            <label class="label">To</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}" class="input">
         </div>
         <div>
-            <button type="submit" class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">Filter</button>
+            <button type="submit" class="btn-primary">Filter</button>
         </div>
         <div>
-            <a href="{% url 'orders:audit_logs' %}" class="inline-block px-3 py-2 text-sm bg-gray-200 rounded-lg hover:bg-gray-300">Clear</a>
+            <a href="{% url 'orders:audit_logs' %}" class="btn-secondary">Clear</a>
         </div>
     </form>
 
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+    <div class="card">
+        <div class="table-wrap">
+        <table>
+            <thead>
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Model</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Model</th>
+                    <th>Details</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
                 {% for log in logs %}
-                <tr class="hover:bg-gray-50 text-sm">
-                    <td class="px-4 py-2 whitespace-nowrap text-gray-500">{{ log.created_at|date:"M d H:i" }}</td>
-                    <td class="px-4 py-2 whitespace-nowrap">{{ log.user.username|default:'System' }}</td>
-                    <td class="px-4 py-2 whitespace-nowrap font-medium">{{ log.action }}</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-gray-500">{{ log.model_name }}</td>
-                    <td class="px-4 py-2 text-gray-500">{{ log.details }}</td>
+                <tr>
+                    <td class="whitespace-nowrap text-muted">{{ log.created_at|date:"M d H:i" }}</td>
+                    <td class="whitespace-nowrap">{{ log.user.username|default:'System' }}</td>
+                    <td class="whitespace-nowrap font-medium">{{ log.action }}</td>
+                    <td class="whitespace-nowrap text-muted">{{ log.model_name }}</td>
+                    <td class="text-muted">{{ log.details }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">No logs match the selected filters.</td></tr>
+                <tr><td colspan="5" class="py-8 text-center text-muted">No logs match the selected filters.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

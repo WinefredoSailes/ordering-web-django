@@ -2,23 +2,23 @@
 {% block title %}Create Dispatch Trip{% endblock %}
 {% block content %}
 <div class="max-w-4xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Create Dispatch Trip</h1>
-    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-6">
+    <h1 class="text-2xl font-bold text-white mb-6">Create Dispatch Trip</h1>
+    <form method="post" class="card space-y-6 p-6">
         {% csrf_token %}
         <div class="grid md:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tanker</label>
-                <select name="tanker" id="tankerSelect" required class="w-full border rounded-lg p-2">
+                <label class="label">Tanker</label>
+                <select name="tanker" id="tankerSelect" required class="input">
                     <option value="">Select tanker...</option>
                     {% for tanker in tankers %}
                     <option value="{{ tanker.id }}" data-capacity="{{ tanker.total_capacity }}">{{ tanker.code }} ({{ tanker.plate_number }}) - {{ tanker.total_capacity }}L</option>
                     {% endfor %}
                 </select>
-                <p id="capacityInfo" class="text-sm text-gray-500 mt-1">Select a tanker to see compartments</p>
+                <p id="capacityInfo" class="text-sm text-muted mt-1">Select a tanker to see compartments</p>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Driver</label>
-                <select name="driver" required class="w-full border rounded-lg p-2">
+                <label class="label">Driver</label>
+                <select name="driver" required class="input">
                     <option value="">Select driver...</option>
                     {% for driver in drivers %}
                     <option value="{{ driver.id }}">{{ driver.user.username }}{% if not driver.is_available %} (BUSY){% endif %}</option>
@@ -27,43 +27,43 @@
             </div>
         </div>
         <div>
-            <h2 class="text-lg font-semibold mb-3">Orders</h2>
-            <p class="text-sm text-gray-500 mb-3">Check orders and assign compartments.</p>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
+            <h2 class="text-lg font-semibold text-white mb-3">Orders</h2>
+            <p class="text-sm text-muted mb-3">Check orders and assign compartments.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
                         <tr>
-                            <th class="px-3 py-2 text-left">Include</th>
-                            <th class="px-3 py-2 text-left">PO#</th>
-                            <th class="px-3 py-2 text-left">Customer</th>
-                            <th class="px-3 py-2 text-left">Product</th>
-                            <th class="px-3 py-2 text-left">Qty</th>
-                            <th class="px-3 py-2 text-left">Compartment</th>
+                            <th>Include</th>
+                            <th>PO#</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Compartment</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody>
                         {% for order in orders %}
                         <tr>
-                            <td class="px-3 py-2"><input type="checkbox" name="orders" value="{{ order.id }}" class="order-cb" data-liters="{{ order.quantity_liters }}"></td>
-                            <td class="px-3 py-2">{{ order.po_number }}</td>
-                            <td class="px-3 py-2">{{ order.customer.username }}</td>
-                            <td class="px-3 py-2">{{ order.product.shortcut }}</td>
-                            <td class="px-3 py-2">{{ order.quantity_liters }}L</td>
-                            <td class="px-3 py-2">
-                                <select name="compartment" class="comp-sel border rounded p-1 text-xs" disabled>
+                            <td><input type="checkbox" name="orders" value="{{ order.id }}" class="order-cb" data-liters="{{ order.quantity_liters }}"></td>
+                            <td>{{ order.po_number }}</td>
+                            <td>{{ order.customer.username }}</td>
+                            <td>{{ order.product.shortcut }}</td>
+                            <td>{{ order.quantity_liters }}L</td>
+                            <td>
+                                <select name="compartment" class="comp-sel input text-xs p-1" disabled>
                                     <option value="">Select tanker first</option>
                                 </select>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="6" class="px-3 py-4 text-center text-gray-500">No orders ready for dispatch.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-4">No orders ready for dispatch.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <p id="totalLiters" class="text-right text-lg font-semibold mt-3">Total: 0L</p>
+            <p id="totalLiters" class="text-right text-lg font-semibold text-white mt-3">Total: 0L</p>
         </div>
-        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700" onclick="return confirm('Create this dispatch trip? Drivers will be assigned and orders will be dispatched.')">Dispatch Trip</button>
+        <button type="submit" class="btn-primary w-full justify-center" onclick="return confirm('Create this dispatch trip? Drivers will be assigned and orders will be dispatched.')">Dispatch Trip</button>
     </form>
 </div>
 <script>
