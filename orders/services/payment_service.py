@@ -47,6 +47,10 @@ def reject_payment(payment, reason, request=None):
     payment.processed_at = timezone.now()
     payment.save()
 
+    order = payment.order
+    order.status = 'draft'
+    order.save()
+
     _log('PAYMENT_REJECTED', 'Payment', payment.pk,
          f"Payment rejected: {reason[:100]}", request)
 
