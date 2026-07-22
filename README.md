@@ -1,6 +1,8 @@
 # Fuel Portal — Ordering & Delivery Management
 
-A web-based fuel ordering and delivery management system built with Django. Covers the complete workflow: customer ordering → payment verification → dispatch management → delivery tracking.
+> **Internal MVP** — A private, first-party web application for fuel ordering and delivery operations. No external APIs consumed; built entirely in-house with Django.
+
+A web-based fuel ordering and delivery management system built with Django. Covers the complete workflow: customer ordering → payment verification → dispatch management → delivery tracking — all driven through an internal conversation-based interface.
 
 ## Quick Start (Local)
 
@@ -107,14 +109,24 @@ Staff access via `http://YOUR_IP:8000/` (run `ipconfig` to find your IP).
 | **2. Mark In Transit** | When you pick up the load, click **Mark In Transit** to notify the customer. |
 | **3. Mark Delivered** | After delivery, upload a **delivery proof photo** + notes. Click **Mark Delivered** → order completed, trip auto-completes if all orders delivered, you become available for new trips. |
 
-### Superadmin (Full Control)
+### Superadmin (God Mode — Full Control, Any Role)
 
-**Pages**: Dashboard, Orders, Groups, Pricing, Products, Tankers, Drivers, Users, Logs, Earned Revenue, Unearned Revenue, Profile
+**Pages**: Dashboard, Inbox, Payments, Dispatch, Trips, Orders, Groups, Pricing, Products, Tankers, Drivers, Users, Logs, Sales, Earned Revenue, Unearned Revenue, Profile
 
-| Section | What you can do |
-|---------|----------------|
-| **Dashboard** | Overview KPIs: total orders, by status, recent activity. |
-| **Orders** | View all orders across all customers and statuses. |
+A superadmin can perform **any role's duties** from a single account:
+
+| Duty | Role | How |
+|------|------|-----|
+| **Inbox** | Hauling | Process customer conversations, create/modify orders, reply |
+| **Payments** | Cashier | Approve/reject payment proofs, generate AR# |
+| **Dispatch** | Hauling | Create trips with tanker + driver + compartment assignment |
+| **Trips** | Hauling / Driver | View active/completed trips, mark in-transit, mark delivered |
+| **Orders** | Admin | View all orders across customers and statuses |
+| **Groups / Pricing / Products** | Admin | Configure product catalog and pricing tiers |
+| **Tankers / Drivers** | Admin | Manage fleet and driver profiles |
+| **Users** | Admin | Create/edit/delete users for all roles |
+| **Sales / Revenue** | Cashier | Sales report, earned revenue, unearned revenue dashboards |
+| **Logs** | Admin | Full audit trail with date/action/user filters |
 | **Groups** | Customer groups for pricing tiers (e.g., Wholesale, Retail). |
 | **Pricing** | Set product prices per group or per specific customer. Supports search + product/target/status filters. |
 | **Products** | Manage fuel types: shortcut code (ADO/REG/XCS), name, order multiple (500L default). |
@@ -150,6 +162,13 @@ Customer              Cashier              Hauling              Driver
 
 ---
 
+## Key Features
+
+- **Conversation-driven operations** — Native in-app messaging (no third-party APIs) between customers and hauling team. Operators process requests via preview actions (create order, modify, reschedule) directly from the chat thread, with auto-reply generation.
+- **Multi-role workflow** — Customer → Cashier → Hauling → Driver with full status tracking (Draft → Ready for Dispatch → Dispatched → In Transit → Delivered).
+- **Superadmin god mode** — A single admin can act as any role (cashier, hauling, driver) without separate accounts. Ideal for small teams (<10 staff).
+- **Mobile-responsive** — Collapsible sidebar layout via Alpine.js, works on desktop and phone.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -157,6 +176,7 @@ Customer              Cashier              Hauling              Driver
 | Backend | Django 5.0, SQLite (dev) / PostgreSQL (prod) |
 | Frontend | Tailwind CSS (CDN), HTMX, Alpine.js |
 | Auth | Django auth with custom User model (role-based) |
+| Chat | First-party in-app messaging (no external APIs) |
 | Media | Pillow for image uploads |
 
 ## Project Structure
